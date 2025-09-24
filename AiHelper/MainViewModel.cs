@@ -25,8 +25,17 @@ namespace AiHelper
             this.SummarizeImageInOneSentenceComand = new RelayCommand(this.SummarizeImageInOneSentence);
             this.SummarizeImageComand = new RelayCommand(this.SummarizeImage);
             this.OpenConfigCommand = new RelayCommand(this.HandleCreateConfiguration);
+            this.HelpCommand = new RelayCommand(this.Help);
 
             synthesizer.SetOutputToDefaultAudioDevice();
+            var voice = synthesizer.GetInstalledVoices().FirstOrDefault(v => v.VoiceInfo.Gender == VoiceGender.Male && v.VoiceInfo.Culture.Name.StartsWith("de", StringComparison.OrdinalIgnoreCase));
+            voice ??= synthesizer.GetInstalledVoices().FirstOrDefault(v => v.VoiceInfo.Culture.Name.StartsWith("de", StringComparison.OrdinalIgnoreCase));
+
+            if (voice != null)
+            {
+                synthesizer.SelectVoice(voice.VoiceInfo.Name);
+            }
+          
             this.bringToFront = bringToFront;
             this.showDialog = showDialog;
             Task.Run(HandleStayOnTop);
@@ -256,6 +265,8 @@ namespace AiHelper
         {
             this.AddToOutput("Some Dummy output at " + DateTime.Now.ToString("yyyyMMdd HHmmss"));
         }
+
+        public ICommand HelpCommand { get; }
 
         private async Task Help()
         {

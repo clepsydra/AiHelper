@@ -36,7 +36,7 @@
                         </Button>
                     </DockPanel>
 
-                    <Button Command="{Binding SummarizeImageComand}" MinWidth="200" FontSize="20" Margin="5,20,5,5" HorizontalContentAlignment="Left">
+                    <Button Command="{Binding HelpCommand}" MinWidth="200" FontSize="20" Margin="5,20,5,5" HorizontalContentAlignment="Left">
 
                         <TextBlock Text="F1: Hilfetext vorlesen" HorizontalAlignment="Left" Margin="5"/>
                     </Button>
