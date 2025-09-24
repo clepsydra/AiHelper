@@ -1,0 +1,62 @@
+﻿<Window x:Class="AiHelper.Config.ConfigUI"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AiHelper.Config"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=local:ConfigViewModel}"
+        Title="ConfigUI" Height="300" Width="600"
+        Background="WhiteSmoke">
+    <Grid>
+        <DockPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" DockPanel.Dock="Bottom">
+                <Button Command="{Binding OkCommand}" Content="Ok" MinWidth="80" Margin="1"/>
+                <Button Command="{Binding CancelCommand}" Content="Cancel" MinWidth="80" Margin="1"/>
+            </StackPanel>
+
+            <GroupBox Header="Einstellungen">
+                <StackPanel>
+                    <DockPanel Margin="5">
+                        <TextBlock Text="Open AI Api Key"/>
+                        <TextBox Text="{Binding ApiKey}" Margin="3,0,0,0"/>
+                    </DockPanel>
+                    <StackPanel Margin="5">
+                        <TextBlock Text="Erklärung" FontWeight="Bold"/>
+                        <TextBlock Text="Falls Sie einen Api Key von Open AI haben tragen Sie ihn bitte ein."/>
+                        <TextBlock Text="Falls Sie noch keinen haben, dann gehen Sie wie folgt vor:" Margin="0,10,0,0"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Erstellen Sie einen Account bei Open AI: "/>
+                            <TextBlock>
+                                <Hyperlink NavigateUri="https://platform.openai.com/docs/overview" RequestNavigate="NavigateTo">
+                                    <TextBlock Text="Open AI - Platform Overview"/>
+                                </Hyperlink>
+                            </TextBlock>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Hinterlegen Sie eine Zahlungsinformation und laden Sie Ihr Konto auf: "/>
+                            <TextBlock>
+                                <Hyperlink NavigateUri="https://platform.openai.com/settings/organization/billing/overview" RequestNavigate="NavigateTo">
+                                    <TextBlock Text="Open AI - Billing"/>
+                                </Hyperlink>
+                            </TextBlock>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Erstellen Sie einen Api Key bei Open AI: "/>
+                            <TextBlock>
+                                <Hyperlink NavigateUri="https://platform.openai.com/api-keys" RequestNavigate="NavigateTo">
+                                    <TextBlock Text="Open AI - Api Keys"/>
+                                </Hyperlink>
+                            </TextBlock>
+                        </StackPanel>
+
+                        <TextBlock Text="Tragen Sie den Api Key oben ein."/>
+
+                    </StackPanel>
+                </StackPanel>
+            </GroupBox>
+        </DockPanel>
+    </Grid>
+</Window>
