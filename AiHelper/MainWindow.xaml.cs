@@ -1,17 +1,9 @@
-﻿using System.IO;
-using System.Runtime.InteropServices;
-using System.Text;
+﻿using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using OpenAI.Chat;
 
 namespace AiHelper
 {
@@ -48,14 +40,33 @@ namespace AiHelper
 
                 Dispatcher.Invoke(() =>
                 {
-                    try
+                    var scrollViewer = FindVisualChild<ScrollViewer>(this.OutputDisplay);
+                    if (scrollViewer != null)
                     {
-                        var lastItem = this.OutputDisplay.Items[this.OutputDisplay.Items.Count - 1];
-                        this.OutputDisplay.ScrollIntoView(lastItem);
+                        scrollViewer.ScrollToEnd();
                     }
-                    catch { }
                 });
             });
+        }
+
+        private T FindVisualChild<T>(DependencyObject parent) where T : DependencyObject
+        {
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+                if (child is T typeChild)
+                {
+                    return typeChild;
+                }
+
+                var result = FindVisualChild<T>(child);
+                if (result != null)
+                {
+                    return result;
+                }
+            }
+
+            return null;
         }
 
         private bool ShowAsDialog(Window window)
