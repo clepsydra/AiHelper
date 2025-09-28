@@ -9,6 +9,9 @@ It is controlled using the keyboard and gives audio feedback.
 ## Available functionality
 Currently it can take a picture of something in front of the webcam, send it to Open AI for analysis and tell the user what it is.
 
+## Example
+I've recorded a video that shows the functionality: https://www.youtube.com/watch?v=xD_BhAxaXpY
+
 ## Open AI
 I had initially used a model in Ollama, but that is slow on slower machines.
 
