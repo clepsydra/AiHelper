@@ -31,14 +31,14 @@ namespace AiHelper
             var voice = synthesizer.GetInstalledVoices().FirstOrDefault(v => v.VoiceInfo.Gender == VoiceGender.Male && v.VoiceInfo.Culture.Name.StartsWith("de", StringComparison.OrdinalIgnoreCase));
             voice ??= synthesizer.GetInstalledVoices().FirstOrDefault(v => v.VoiceInfo.Culture.Name.StartsWith("de", StringComparison.OrdinalIgnoreCase));
 
-            if (voice != null)
+              if (voice != null)
             {
                 synthesizer.SelectVoice(voice.VoiceInfo.Name);
             }
           
             this.bringToFront = bringToFront;
             this.showDialog = showDialog;
-            Task.Run(HandleStayOnTop);
+            Task.Run(HandleStayOnTop);            
         }        
 
         private bool showImage = false;
@@ -117,8 +117,6 @@ namespace AiHelper
 
             try
             {
-                //this.AddToOutput("Dies ist ein Test fglkjdfgfdgh dsf dsfg dfg dfg sdfg sg s gfh sgh dgh d dfgh gfh f fgh dfgh fdgh dfgh fdgh fdgh fdgh fdh fdg dfh fgh" + DateTime.Now.ToString("yyyyMMdd-HHmmss"));
-
                 var imageData = await CaptureImage();
 
                 var message = new UserChatMessage(
@@ -209,7 +207,7 @@ namespace AiHelper
         {
             try
             {
-                await Task.Run(() => this.synthesizer.Speak(text));
+                await Task.Run(() => this.synthesizer.Speak(text));                
             }
             catch (Exception ex)
             {
@@ -286,7 +284,7 @@ namespace AiHelper
 
         private string ConfigFileName => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "aiHelper.config");
 
-        internal async void Initialize()
+        internal async Task Initialize()
         {            
             if (!File.Exists(this.ConfigFileName))
             {
@@ -315,12 +313,15 @@ namespace AiHelper
 
             this.apiKey = config.OpenAiApiKey;
             this.InitClient();
+
+            await this.Say("A I Helper gestartet");
             
         }
 
         private void InitClient()
         {
-            this.client = new(model: "o4-mini", apiKey: apiKey);
+            string model = "o4-mini";
+            this.client = new(model: model, apiKey: apiKey);
         }
 
         public ICommand OpenConfigCommand { get; }

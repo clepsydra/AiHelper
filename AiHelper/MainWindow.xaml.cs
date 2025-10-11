@@ -24,7 +24,6 @@ namespace AiHelper
             this.PreviewKeyDown += MainWindow_PreviewKeyDown;
 
             Loaded += MainWindow_Loaded;
-
         }
 
         private void Outputs_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -49,7 +48,7 @@ namespace AiHelper
             });
         }
 
-        private T FindVisualChild<T>(DependencyObject parent) where T : DependencyObject
+        private T? FindVisualChild<T>(DependencyObject parent) where T : DependencyObject
         {
             for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
             {
@@ -77,17 +76,17 @@ namespace AiHelper
         }
         private nint hwnd;
 
-        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             this.SpaceButton.Focus();
-            this.viewModel.Initialize();
+            await this.viewModel.Initialize();
 
             hwnd = new WindowInteropHelper(this).EnsureHandle();
         }
 
         private void BringToTop()
         {
-            Dispatcher.Invoke(async () =>
+            Dispatcher.Invoke(() =>
             {
                 var hwndForground = GetForegroundWindow();
                 if (hwnd == hwndForground)
