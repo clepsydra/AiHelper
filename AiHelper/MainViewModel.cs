@@ -120,7 +120,12 @@ namespace AiHelper
                 var imageData = await CaptureImage();
 
                 var message = new UserChatMessage(
-                    ChatMessageContentPart.CreateTextPart("Fasse in einem Satz zusammen worum es sich hier handelt"),
+                    ChatMessageContentPart.CreateTextPart(@"Wenn auf dem Bild jemand einen Gegenstand in die Kamera hält, dann fasse in einem Satz zusammen, worum es sich bei dem Gegenstand handelt.
+Es muss dann nicht erwähnt werden, dass es z.B. eine Hand ist, die den Gegenstand hält.
+
+Wenn das Bild ein Dokument zeigt, dann fasse in einem Satz zusammen, um was es sich bei den Dokument handelt.
+
+Wenn keine der Möglichkeiten zutrifft fasse in einem Satz den Inhalt des Bildes zusammen."),
                     ChatMessageContentPart.CreateImagePart(imageData, "image/png"));
 
                 List<ChatMessage> chatHistory = [];
