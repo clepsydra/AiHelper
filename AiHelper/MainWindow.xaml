@@ -8,29 +8,37 @@
         mc:Ignorable="d"
         Title="AI Helper" Height="700" Width="1000"
         WindowStartupLocation="CenterScreen" WindowState="Maximized"
-        Background="WhiteSmoke">
+        Background="LightGray">
     <Window.Resources>
         <Style TargetType="TextBlock">
             <Setter Property="UseLayoutRounding" Value="True"/>
         </Style>
     </Window.Resources>
     
-    <Grid>
+    <Grid Background="LightGray">
         <DockPanel>
-            <GroupBox Header="Einstellungen" DockPanel.Dock="Bottom" Margin="3">
+            <GroupBox Header="Einstellungen" DockPanel.Dock="Bottom" Margin="7,3,12,15" BorderBrush="Gray" Background="White">
+                <GroupBox.BitmapEffect>
+                    <DropShadowBitmapEffect Color="Gray" ShadowDepth="10"/>
+                </GroupBox.BitmapEffect>
                 <StackPanel>
-                    <CheckBox IsChecked="{Binding StayOnTop}" Content="Anwendung im Vordergrund halten" Margin="5,5,0,0" Focusable="False"/>
+                    <CheckBox IsChecked="{Binding StayOnTop}" Margin="5,5,0,0" Focusable="False" >
+                        <TextBlock Text="Anwendung im Vordergrund halten" />
+                    </CheckBox>
                     <Button Content="Konfiguration - Api Key eintellen" Command="{Binding OpenConfigCommand}" HorizontalAlignment="Left" Padding="5,2,5,2" Margin="5,5,0,0"
                             Focusable="False"/>
                 </StackPanel>
             </GroupBox>
-            <GroupBox Header="Aktionen" DockPanel.Dock="Top" Margin="3">
-                <ItemsControl ItemsSource="{Binding Options}" >
+            <GroupBox Header="Aktionen" DockPanel.Dock="Top" Margin="7,3,12,12"  BorderBrush="Gray" Background="White">
+                <GroupBox.BitmapEffect>
+                    <DropShadowBitmapEffect Color="Gray" ShadowDepth="10"/>
+                </GroupBox.BitmapEffect>
+                <ItemsControl ItemsSource="{Binding Options}" BorderThickness="0">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border BorderBrush="Blue" Background="AliceBlue" CornerRadius="5" Padding="10" BorderThickness="1" Margin="5">
+                            <Border BorderBrush="White" Background="White" CornerRadius="5" Padding="10" BorderThickness="1" Margin="7" >                               
                                 <Border.BitmapEffect>
-                                    <DropShadowBitmapEffect ShadowDepth="5" Color="LightBlue" Softness="10"/>
+                                    <DropShadowBitmapEffect ShadowDepth="5" Color="Black" Softness="1"/>
                                 </Border.BitmapEffect>
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="{Binding KeyText}" FontWeight="Bold" FontSize="20"/>
@@ -42,17 +50,20 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
             </GroupBox>
-            <GroupBox Header="Ausgabe" >
-                <ScrollViewer x:Name="OutputScrollViewer">
+            <GroupBox Header="Ausgabe" Margin="7,3,12,12"  BorderBrush="Gray" Background="White">
+                <GroupBox.BitmapEffect>
+                    <DropShadowBitmapEffect Color="Gray" ShadowDepth="10"/>
+                </GroupBox.BitmapEffect>
+                                            
+                <ScrollViewer x:Name="OutputScrollViewer" VerticalScrollBarVisibility="Auto">
                     <ItemsControl ItemsSource="{Binding Outputs}" x:Name="OutputDisplay" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Focusable="False">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Border CornerRadius="5" Padding="10" BorderBrush="Lime" BorderThickness="1" Background="White" Margin="4" HorizontalAlignment="Left">
                                     <Border.BitmapEffect>
-                                        <DropShadowBitmapEffect Color="Lime" ShadowDepth="1" />
-
+                                        <DropShadowBitmapEffect Color="Lime" ShadowDepth="2" />
                                     </Border.BitmapEffect>
-                                    <TextBlock Text="{Binding Text}" TextWrapping="Wrap" FontSize="14" Padding="0" />
+                                    <TextBlock Text="{Binding Text}" TextWrapping="Wrap" FontSize="14" Padding="0" Foreground="Black"/>
                                 </Border>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>

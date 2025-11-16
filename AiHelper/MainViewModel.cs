@@ -18,7 +18,7 @@ namespace AiHelper
         private readonly Action scrollToEnd;
 
         public MainViewModel(Action bringToFront, Func<Window, bool> showDialog, Action scrollToEnd)
-        {            
+        {
             this.bringToFront = bringToFront;
             this.showDialog = showDialog;
             this.scrollToEnd = scrollToEnd;
@@ -27,7 +27,7 @@ namespace AiHelper
             this.Options = new List<ICustomAction>
             {
                 new ShortSummaryImageAction(this.AddToOutput, () => this.ShowImage),
-                new ReadImageAction(this.AddToOutput, () => this.ShowImage),                
+                new ReadImageAction(this.AddToOutput, () => this.ShowImage),
             };
 
             this.Options.Add(new HelpAction(this.Options));
@@ -76,12 +76,21 @@ namespace AiHelper
 
         public List<ICustomAction> Options { get; }
 
+        private DateTime keyLastPressedAt = DateTime.MinValue;
+
         internal async Task<bool> KeyPressed(Key key)
         {
             if (key == Key.VolumeDown || key == Key.VolumeUp || key == Key.VolumeMute)
             {
                 return false;
             }
+
+            if (DateTime.Now.Subtract(keyLastPressedAt).TotalMilliseconds < 500)
+            {
+                return false;
+            }
+
+            keyLastPressedAt = DateTime.Now;
 
             string? text = Enum.GetName(key);
             if (text == null)
@@ -137,7 +146,7 @@ namespace AiHelper
 
         private void AddToOutput(string text)
         {
-            this.Outputs.Add(new TextOutput(text));
+            this.Outputs.Add(new TextOutput(text.Trim()));
             if (this.Outputs.Count > 50)
             {
                 this.Outputs.RemoveAt(0);
