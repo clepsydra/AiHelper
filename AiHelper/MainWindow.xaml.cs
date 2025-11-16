@@ -17,8 +17,8 @@ namespace AiHelper
         public MainWindow()
         {
             InitializeComponent();
-            viewModel = new MainViewModel(this.BringToTop, this.ShowAsDialog);
-            this.viewModel.Outputs.CollectionChanged += this.Outputs_CollectionChanged;
+            viewModel = new MainViewModel(this.BringToTop, this.ShowAsDialog, this.ScrollToEnd);
+            //this.viewModel.Outputs.CollectionChanged += this.Outputs_CollectionChanged;
             this.DataContext = viewModel;
 
             this.PreviewKeyDown += MainWindow_PreviewKeyDown;
@@ -26,24 +26,15 @@ namespace AiHelper
             Loaded += MainWindow_Loaded;
         }
 
-        private void Outputs_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        private void ScrollToEnd()
         {
-            if (this.viewModel.Outputs.Count == 0)
-            {
-                return;
-            }
-
             Task.Run(async () =>
             {
                 await Task.Delay(200);
 
                 Dispatcher.Invoke(() =>
                 {
-                    var scrollViewer = FindVisualChild<ScrollViewer>(this.OutputDisplay);
-                    if (scrollViewer != null)
-                    {
-                        scrollViewer.ScrollToEnd();
-                    }
+                    this.OutputScrollViewer.ScrollToEnd();
                 });
             });
         }
@@ -78,7 +69,6 @@ namespace AiHelper
 
         private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            this.SpaceButton.Focus();
             await this.viewModel.Initialize();
 
             hwnd = new WindowInteropHelper(this).EnsureHandle();

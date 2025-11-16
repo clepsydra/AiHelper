@@ -9,6 +9,11 @@
         Title="AI Helper" Height="700" Width="1000"
         WindowStartupLocation="CenterScreen" WindowState="Maximized"
         Background="WhiteSmoke">
+    <Window.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="UseLayoutRounding" Value="True"/>
+        </Style>
+    </Window.Resources>
     
     <Grid>
         <DockPanel>
@@ -20,44 +25,39 @@
                 </StackPanel>
             </GroupBox>
             <GroupBox Header="Aktionen" DockPanel.Dock="Top" Margin="3">
-                <StackPanel DockPanel.Dock="Top">
-                    <DockPanel>
-                        <CheckBox IsChecked="{Binding ShowImage}" Content="Bild speichern und anzeigen" Margin="5"
-                                  DockPanel.Dock="Right" VerticalAlignment="Center"
-                                  Focusable="False"/>
-                        <Button Command="{Binding SummarizeImageInOneSentenceComand}" MinWidth="200" FontSize="20" Margin="5" HorizontalContentAlignment="Left"
-                                x:Name="SpaceButton" Focusable="False">
-                            <TextBlock Text="Leertaste: Bild aufnehmen und KURZ zusammenfassen" HorizontalAlignment="Left" Margin="5"/>                        
-                        </Button>
-                    </DockPanel>
-
-                    <DockPanel>
-                        <CheckBox IsChecked="{Binding ShowImage}" Content="Bild speichern und anzeigen" Margin="5"
-                            DockPanel.Dock="Right" VerticalAlignment="Center" Focusable="False"/>
-                        <Button Command="{Binding SummarizeImageComand}" MinWidth="200" FontSize="20" Margin="5" HorizontalContentAlignment="Left"
-                                Focusable="False">
-                            <TextBlock Text="F2: Bild aufnehmen und zusammenfassen" HorizontalAlignment="Left" Margin="5"/>
-                        </Button>
-                    </DockPanel>
-
-                    <Button Command="{Binding HelpCommand}" MinWidth="200" FontSize="20" Margin="5,20,5,5" HorizontalContentAlignment="Left"
-                            Focusable="False">
-
-                        <TextBlock Text="F1: Hilfetext vorlesen" HorizontalAlignment="Left" Margin="5"/>
-                    </Button>
-
-                </StackPanel>
-            </GroupBox>
-            <GroupBox Header="Ausgabe">
-                <ListView ItemsSource="{Binding Outputs}" x:Name="OutputDisplay" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Focusable="False">
-                    <ListView.ItemTemplate>
+                <ItemsControl ItemsSource="{Binding Options}" >
+                    <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border CornerRadius="5" Padding="10" BorderBrush="LightBlue" BorderThickness="1" Background="AliceBlue" Margin="2">
-                                <TextBlock Text="{Binding Text}" TextWrapping="Wrap"/>
-                            </Border>
+                            <Border BorderBrush="Blue" Background="AliceBlue" CornerRadius="5" Padding="10" BorderThickness="1" Margin="5">
+                                <Border.BitmapEffect>
+                                    <DropShadowBitmapEffect ShadowDepth="5" Color="LightBlue" Softness="10"/>
+                                </Border.BitmapEffect>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding KeyText}" FontWeight="Bold" FontSize="20"/>
+                                    <TextBlock Text=": " FontWeight="Bold" FontSize="20"/>
+                                    <TextBlock Text="{Binding Description}" FontSize="20" />
+                                </StackPanel>
+                            </Border>                            
                         </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </GroupBox>
+            <GroupBox Header="Ausgabe" >
+                <ScrollViewer x:Name="OutputScrollViewer">
+                    <ItemsControl ItemsSource="{Binding Outputs}" x:Name="OutputDisplay" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Focusable="False">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border CornerRadius="5" Padding="10" BorderBrush="Lime" BorderThickness="1" Background="White" Margin="4" HorizontalAlignment="Left">
+                                    <Border.BitmapEffect>
+                                        <DropShadowBitmapEffect Color="Lime" ShadowDepth="1" />
+
+                                    </Border.BitmapEffect>
+                                    <TextBlock Text="{Binding Text}" TextWrapping="Wrap" FontSize="14" Padding="0" />
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
             </GroupBox>
         </DockPanel>
     </Grid>
