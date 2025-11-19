@@ -29,14 +29,14 @@
                             Focusable="False"/>
                 </StackPanel>
             </GroupBox>
-            <GroupBox Header="Aktionen" DockPanel.Dock="Top" Margin="7,3,12,12"  BorderBrush="Gray" Background="White">
+            <GroupBox Header="Mögliche Aktionen" DockPanel.Dock="Top" Margin="7,3,12,12"  BorderBrush="Gray" Background="White">
                 <GroupBox.BitmapEffect>
                     <DropShadowBitmapEffect Color="Gray" ShadowDepth="10"/>
                 </GroupBox.BitmapEffect>
                 <ItemsControl ItemsSource="{Binding Options}" BorderThickness="0">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border BorderBrush="White" Background="White" CornerRadius="5" Padding="10" BorderThickness="1" Margin="7" >                               
+                            <Border BorderBrush="White" Background="LightYellow" CornerRadius="5" Padding="10" BorderThickness="1" Margin="7" >                               
                                 <Border.BitmapEffect>
                                     <DropShadowBitmapEffect ShadowDepth="5" Color="Black" Softness="1"/>
                                 </Border.BitmapEffect>
@@ -59,7 +59,7 @@
                     <ItemsControl ItemsSource="{Binding Outputs}" x:Name="OutputDisplay" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Focusable="False">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border CornerRadius="5" Padding="10" BorderBrush="Lime" BorderThickness="1" Background="White" Margin="4" HorizontalAlignment="Left">
+                                <Border CornerRadius="5" Padding="10" BorderBrush="Lime" BorderThickness="1" Background="WhiteSmoke" Margin="4" HorizontalAlignment="Left">
                                     <Border.BitmapEffect>
                                         <DropShadowBitmapEffect Color="Lime" ShadowDepth="2" />
                                     </Border.BitmapEffect>
