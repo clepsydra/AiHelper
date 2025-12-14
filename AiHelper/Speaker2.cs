@@ -116,11 +116,6 @@ namespace AiHelper
                 waveOut.Play();
 
                 messageQueue.Dequeue();
-
-                //while (waveOut.PlaybackState == PlaybackState.Playing)
-                //{
-                //    await Task.Delay(25);
-                //}
             }
         }
     }
