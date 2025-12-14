@@ -7,8 +7,9 @@
         d:DataContext="{d:DesignInstance Type=local:MainViewModel}"
         mc:Ignorable="d"
         Title="AI Helper" Height="700" Width="1000"
-        WindowStartupLocation="CenterScreen" WindowState="Maximized"
+        WindowStartupLocation="CenterScreen" 
         Background="LightGray">
+    <!--WindowState="Maximized"-->
     <Window.Resources>
         <Style TargetType="TextBlock">
             <Setter Property="UseLayoutRounding" Value="True"/>

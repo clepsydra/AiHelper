@@ -6,8 +6,12 @@
         xmlns:local="clr-namespace:AiHelper.Config"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=local:ConfigViewModel}"
-        Title="ConfigUI" Height="300" Width="600"
+        Title="Einstellungen"  Width="600"
+        SizeToContent="Height"
         Background="WhiteSmoke">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </Window.Resources>
     <Grid>
         <DockPanel>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" DockPanel.Dock="Bottom">
@@ -15,48 +19,107 @@
                 <Button Command="{Binding CancelCommand}" Content="Cancel" MinWidth="80" Margin="1"/>
             </StackPanel>
 
-            <GroupBox Header="Einstellungen">
-                <StackPanel>
-                    <DockPanel Margin="5">
-                        <TextBlock Text="Open AI Api Key"/>
-                        <TextBox Text="{Binding ApiKey}" Margin="3,0,0,0"/>
-                    </DockPanel>
-                    <StackPanel Margin="5">
-                        <TextBlock Text="Erklärung" FontWeight="Bold"/>
-                        <TextBlock Text="Falls Sie einen Api Key von Open AI haben tragen Sie ihn bitte ein."/>
-                        <TextBlock Text="Falls Sie noch keinen haben, dann gehen Sie wie folgt vor:" Margin="0,10,0,0"/>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Erstellen Sie einen Account bei Open AI: "/>
-                            <TextBlock>
+            <StackPanel>
+
+
+                <GroupBox Header="Open AI API">
+                    <StackPanel>
+                        <DockPanel Margin="5">
+                            <TextBlock Text="Open AI Api Key"/>
+                            <TextBox Text="{Binding Config.OpenAiApiKey}" Margin="3,0,0,0"/>
+                        </DockPanel>
+                        <StackPanel Margin="5">
+                            <TextBlock Text="Erklärung" FontWeight="Bold"/>
+                            <TextBlock Text="Falls Sie einen Api Key von Open AI haben tragen Sie ihn bitte ein."/>
+                            <TextBlock Text="Falls Sie noch keinen haben, dann gehen Sie wie folgt vor:" Margin="0,10,0,0"/>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Erstellen Sie einen Account bei Open AI: "/>
+                                <TextBlock>
                                 <Hyperlink NavigateUri="https://platform.openai.com/docs/overview" RequestNavigate="NavigateTo">
                                     <TextBlock Text="Open AI - Platform Overview"/>
                                 </Hyperlink>
                             </TextBlock>
-                        </StackPanel>
+                            </StackPanel>
 
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Hinterlegen Sie eine Zahlungsinformation und laden Sie Ihr Konto auf: "/>
-                            <TextBlock>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Hinterlegen Sie eine Zahlungsinformation und laden Sie Ihr Konto auf: "/>
+                                <TextBlock>
                                 <Hyperlink NavigateUri="https://platform.openai.com/settings/organization/billing/overview" RequestNavigate="NavigateTo">
                                     <TextBlock Text="Open AI - Billing"/>
                                 </Hyperlink>
                             </TextBlock>
-                        </StackPanel>
+                            </StackPanel>
 
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Erstellen Sie einen Api Key bei Open AI: "/>
-                            <TextBlock>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Erstellen Sie einen Api Key bei Open AI: "/>
+                                <TextBlock>
                                 <Hyperlink NavigateUri="https://platform.openai.com/api-keys" RequestNavigate="NavigateTo">
                                     <TextBlock Text="Open AI - Api Keys"/>
                                 </Hyperlink>
                             </TextBlock>
+                            </StackPanel>
+
+                            <TextBlock Text="Tragen Sie den Api Key oben ein."/>
+
                         </StackPanel>
-
-                        <TextBlock Text="Tragen Sie den Api Key oben ein."/>
-
                     </StackPanel>
-                </StackPanel>
-            </GroupBox>
+                </GroupBox>
+                <GroupBox Header="EMail Einstellungen" Padding="5" Margin="0,5,0,0">
+                    <Grid>
+                        <Grid.Resources>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Margin" Value="0,0,3,0"/>
+                                <Setter Property="VerticalAlignment" Value="Center"/>
+                            </Style>
+                            <Style TargetType="TextBox">
+                                <Setter Property="Margin" Value="1"/>
+                            </Style>
+                        </Grid.Resources>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Dein Name" Grid.Row="0" Grid.Column="0"/>
+                        <TextBox Text="{Binding Config.EMailConfig.Name}" Grid.Row="0" Grid.Column="1"/>
+
+                        <TextBlock Text="E-Mail Adresse" Grid.Row="1" Grid.Column="0"/>
+                        <TextBox Text="{Binding Config.EMailConfig.EMailAddress}" Grid.Row="1" Grid.Column="1"/>
+
+                        <TextBlock Text="Smtp Server" Grid.Row="2" Grid.Column="0"/>
+                        <TextBox Text="{Binding Config.EMailConfig.SmtpServer}" Grid.Row="2" Grid.Column="1"/>
+
+                        <TextBlock Text="Imap Server" Grid.Row="3" Grid.Column="0"/>
+                        <TextBox Text="{Binding Config.EMailConfig.ImapServer}" Grid.Row="3" Grid.Column="1"/>
+
+                        <TextBlock Text="Api Key" Grid.Row="4" Grid.Column="0"/>
+                        <TextBox Text="{Binding Config.EMailConfig.ApiKey}" Grid.Row="4" Grid.Column="1"/>
+
+                    </Grid>
+                </GroupBox>
+
+                <GroupBox Header="Mikrofon Einstellungen">
+                    <StackPanel>
+                        <DockPanel Margin="3">
+                            <TextBlock Text="Limit" VerticalAlignment="Center"/>
+                            <TextBox Text="{Binding VolumeLimit}" Margin="5,0,0,0"/>
+                        </DockPanel>
+                    
+                    <Grid Margin="3">
+                        <ProgressBar Value="{Binding MaxVolume}" Maximum="1" Height="20"/>
+                        <TextBlock Text="Ich höre was" Visibility="{Binding IsAboveLimit, Converter={StaticResource BooleanToVisibilityConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Grid>
+                    </StackPanel>
+
+                </GroupBox>
+            </StackPanel>
         </DockPanel>
     </Grid>
 </Window>

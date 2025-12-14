@@ -1,4 +1,8 @@
-﻿using System.Windows.Input;
+﻿using System.IO.Pipes;
+using System.Windows.Input;
+using System.Windows.Media.Animation;
+using AiHelper.Config.Models;
+using NAudio.Wave;
 
 namespace AiHelper.Config
 {
@@ -6,28 +10,108 @@ namespace AiHelper.Config
     {
         private readonly Action<bool> close;
 
-        public ConfigViewModel(string? apiKey, Action<bool> close)
+        public ConfigViewModel(AiHelperConfig? config, Action<bool> close)
         {
             this.close = close;
-            this.OkCommand = new RelayCommand(() => this.close(true));
-            this.CancelCommand = new RelayCommand(() => this.close(false));
-            this.apiKey = apiKey ?? "Not Set";
+            this.OkCommand = new RelayCommand(() => this.Close(true));
+            this.CancelCommand = new RelayCommand(() => this.Close(false));
+            if (config != null)
+            {
+                this.Config = config.Clone();
+            }
+            else
+            {
+                this.Config = new AiHelperConfig { EMailConfig = new() };
+            }
+
+            this.VolumeLimit = ConfigProvider.Config.SoundConfig.SilenceVolumeLimit;
+
+            Task.Run(MonitorNoise);
         }
+
+        private bool isListening = true;
+
 
         public ICommand OkCommand { get; }
 
         public ICommand CancelCommand { get; }
 
-        private string apiKey;
+        public AiHelperConfig Config { get; private set; }
 
-        public string ApiKey
+        private async void MonitorNoise()
         {
-            get => this.apiKey;
-            set
+            WaveInEvent waveIn;
+            waveIn = new WaveInEvent();
+            waveIn.DeviceNumber = 0;
+            waveIn.WaveFormat = new WaveFormat(16000, 1);
+            waveIn.BufferMilliseconds = 100;
+
+
+            waveIn.DataAvailable += (object? sender, WaveInEventArgs e) =>
             {
-                this.apiKey = value;
-                this.OnPropertyChanged();
+                double rawMaxVolume = AudioTools.GetMaxVolume(e);
+
+                double logValue = Math.Log10(rawMaxVolume);
+                this.MaxVolume = (logValue + 5.0) / 5.0;
+
+                this.IsAboveLimit = rawMaxVolume > this.VolumeLimit;
+            };
+
+            waveIn.StartRecording();
+
+            while(isListening)
+            {
+                await Task.Delay(100);
             }
         }
+
+        internal void Close(bool result)
+        {
+            isListening = false;
+            this.Config.SoundConfig.SilenceVolumeLimit = this.VolumeLimit;
+            this.close(result);
+        }
+
+        internal void StopListening()
+        {
+            this.isListening = false;
+        }
+
+        private double maxVolume = 0;
+
+        public double MaxVolume
+        {
+            get => this.maxVolume;
+            set
+            {
+                this.maxVolume = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool isAboveLimit = false;
+        public bool IsAboveLimit
+        {
+            get => this.isAboveLimit;
+            set
+            {
+                isAboveLimit = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private double volumeLimit = 0.05;
+
+        public double VolumeLimit
+        {
+            get => this.volumeLimit;
+            set
+            {
+                this.volumeLimit = value;
+                OnPropertyChanged();
+            }
+        }
+
+
     }
 }

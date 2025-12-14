@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Windows;
+using AiHelper.Config.Models;
 
 namespace AiHelper.Config
 {
@@ -10,20 +11,26 @@ namespace AiHelper.Config
     {
         private readonly ConfigViewModel viewModel;
 
-        public ConfigUI(string? apiKey)
+        public ConfigUI(AiHelperConfig? config)
         {
             InitializeComponent();
 
-            this.viewModel = new ConfigViewModel(apiKey, this.CloseDialog);
+            this.viewModel = new ConfigViewModel(config, this.CloseDialog);
             this.DataContext = viewModel;
+
+            this.Closed += OnClosed;
+        }
+
+        private void OnClosed(object? sender, EventArgs e)
+        {
+            this.viewModel.StopListening();
         }
 
         private void CloseDialog(bool result)
         {
             this.DialogResult = result;
         }
-
-        public string ApiKey => this.viewModel.ApiKey;
+        public AiHelperConfig Config => this.viewModel.Config;
 
         private void NavigateTo(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
         {

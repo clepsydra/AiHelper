@@ -16,6 +16,7 @@ namespace AiHelper
         private readonly Action bringToFront;
         private readonly Func<Window, bool> showDialog;
         private readonly Action scrollToEnd;
+        private VoiceChat voiceChat;
 
         public MainViewModel(Action bringToFront, Func<Window, bool> showDialog, Action scrollToEnd)
         {
@@ -31,13 +32,19 @@ namespace AiHelper
             };
 
             this.Options.Add(new HelpAction(this.Options));
-            this.OpenConfigCommand = new RelayCommand(AiAccessor.EditConfiguration);
+            this.OpenConfigCommand = new RelayCommand(EditConfiguration);
+        }
+
+        private async void EditConfiguration()
+        {
+            await ConfigProvider.EditConfiguration();
+            this.voiceChat.SilenceVolumneLimit = ConfigProvider.Config.SoundConfig.SilenceVolumeLimit;
         }
 
         private async Task HandleErrors(string errorMessage)
         {
             this.AddToOutput("Ein Fehler ist aufgetreten: " + errorMessage);
-            await Speaker.Say("Ein Fehler ist aufgetreten. " + errorMessage);
+            Speaker2.Say("Ein Fehler ist aufgetreten. " + errorMessage);
         }
 
         private bool showImage = false;
@@ -50,7 +57,7 @@ namespace AiHelper
             }
         }
 
-        private bool stayOnTop = true;
+        private bool stayOnTop = false;
         public bool StayOnTop
         {
             get => this.stayOnTop;
@@ -108,7 +115,7 @@ namespace AiHelper
                 text = "Leertaste";
             }
 
-            await Speaker.Say(text);
+            Speaker2.Say(text);
 
             if (key == Key.F12)
             {
@@ -134,8 +141,11 @@ namespace AiHelper
 
         internal async Task Initialize()
         {
-            await AiAccessor.Initialize(this.showDialog, stayOnTop => this.StayOnTop = stayOnTop, this.HandleErrors);
-            await Speaker.Say("A I Helper gestartet");
+            await ConfigProvider.Initialize(this.showDialog, stayOnTop => this.StayOnTop = stayOnTop, this.HandleErrors);
+            Speaker2.Initialize();
+            await AiAccessor.Initialize(this.HandleErrors);
+
+            this.voiceChat = new VoiceChat();
         }
 
         public ICommand OpenConfigCommand { get; }

@@ -41,7 +41,7 @@ Wenn keine der Möglichkeiten zutrifft erläutere den Inhalt des Bildes."),
 
             var result = await AiAccessor.AskAi(chatHistory);
             addToOutput(result);
-            await Speaker.Say(result);
+            await Speaker2.Say(result);
         }
     }
 }
