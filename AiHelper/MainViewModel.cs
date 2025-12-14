@@ -57,7 +57,7 @@ namespace AiHelper
             }
         }
 
-        private bool stayOnTop = false;
+        private bool stayOnTop = true;
         public bool StayOnTop
         {
             get => this.stayOnTop;
