@@ -11,6 +11,7 @@
         Background="LightGray">
     <!--WindowState="Maximized"-->
     <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>        
         <Style TargetType="TextBlock">
             <Setter Property="UseLayoutRounding" Value="True"/>
         </Style>
@@ -29,6 +30,20 @@
                     <Button Content="Konfiguration - Api Key eintellen" Command="{Binding OpenConfigCommand}" HorizontalAlignment="Left" Padding="5,2,5,2" Margin="5,5,0,0"
                             Focusable="False"/>
                 </StackPanel>
+            </GroupBox>
+            <GroupBox Header="Sprach Chat" DockPanel.Dock="Bottom" Padding="5">
+                <Grid>
+                    <Border Background="Lime" Visibility="{Binding VoiceChat.IsDeactivated, Converter={StaticResource BooleanToVisibilityConverter}}"
+                            CornerRadius="10">
+
+                        <TextBlock Text="Ist inactiv" HorizontalAlignment="Center" Margin="5" FontSize="20" Foreground="Gray"/>
+                    </Border>
+                    <Border Background="Red" Visibility="{Binding VoiceChat.IsActivated, Converter={StaticResource BooleanToVisibilityConverter}}"
+                            CornerRadius="10">
+                        <TextBlock Text="Hört zu!" HorizontalAlignment="Center" Margin="5" FontSize="20"/>
+                    </Border>
+                </Grid>
+
             </GroupBox>
             <GroupBox Header="Mögliche Aktionen" DockPanel.Dock="Top" Margin="7,3,12,12"  BorderBrush="Gray" Background="White">
                 <GroupBox.BitmapEffect>

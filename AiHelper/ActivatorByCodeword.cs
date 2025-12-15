@@ -13,7 +13,7 @@ namespace AiHelper
         private SemaphoreSlim _waitHandle = new SemaphoreSlim(0, 1);
         private const string Codeword = "Computer";
 
-        public void WaitForActivation()
+        public void WaitForActivation(Action<string> handleError)
         {
             try
             {
@@ -38,7 +38,7 @@ namespace AiHelper
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ein Fehler ist aufgetreten: {ex.Message}");
+                handleError($"Ein Fehler ist aufgetreten: {ex.Message}");
             }
         }
 

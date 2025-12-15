@@ -16,7 +16,7 @@ using Newtonsoft.Json;
 
 namespace AiHelper
 {
-    class VoiceChat
+    public class VoiceChat : ViewModelBase
     {
         //private VoskRecognizer rec;
 
@@ -37,15 +37,20 @@ namespace AiHelper
         private DateTime silenceStartedAt;
         private bool silenceStarted;
         private bool isListening = false;
+        private readonly Action<string, bool> addToOutput;
+        private Action<string> errorHandle = null;
 
         private MemoryStream gatheredWavData = new();
 
-        public VoiceChat()
+        public VoiceChat(Action<string, bool> addToOutput, Action<string> handleErrors)
         {
+            this.addToOutput = addToOutput;
             //string modelFile = @"D:\Downloads\vosk-model-small-de-0.15\vosk-model-small-de-0.15";
             //string modelFile = @"D:\Downloads\vosk-model-de-0.21\vosk-model-de-0.21";
             //var modelPath = new Model(modelFile);
             //rec = new VoskRecognizer(modelPath, 16000);
+
+            errorHandle = handleErrors;
 
             waveIn = new WaveInEvent();
             waveIn.DeviceNumber = 0;
@@ -54,7 +59,7 @@ namespace AiHelper
 
             this.SilenceVolumneLimit = ConfigProvider.Config?.SoundConfig.SilenceVolumeLimit ?? 0.005;            
 
-            waveIn.DataAvailable += (object? sender, WaveInEventArgs e) =>
+            waveIn.DataAvailable += async (object? sender, WaveInEventArgs e) =>
             {
                 if (!isListening)
                 {
@@ -79,7 +84,8 @@ namespace AiHelper
                         gatheredWavData.Dispose();
                         gatheredWavData = new MemoryStream();
 
-                        Speaker2.Say("Ich warte jetzt, bis Du wieder das Wort Computer sagst.");
+                        //Speaker2.Say("Ich warte jetzt, bis Du wieder das Wort Computer sagst.");
+                        await Speaker2.Say("Ich warte jetzt, bis Du wieder die Leertaste drückst.");
 
                         Task.Run(WaitForActivation);
                     }
@@ -148,9 +154,22 @@ namespace AiHelper
             waveIn.StartRecording();
 
             Initialize();
-
-
         }
+
+        private bool isActivated = false;
+
+        public bool IsActivated
+        {
+            get => this.isActivated;
+            set
+            {
+                this.isActivated = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(this.IsDeactivated));
+            }
+        }
+
+        public bool IsDeactivated => !this.IsActivated;
 
         //private async void HandleInput(byte[] input)
         //{
@@ -181,16 +200,15 @@ namespace AiHelper
 
                 if (!string.IsNullOrEmpty(text))
                 {
+                    this.addToOutput(text, true);
                     await Ask(text);
                 }
             });            
-        }
-
-        bool isActivated = false;
+        }        
 
         public double SilenceVolumneLimit { get; set; }
 
-        private void Initialize()
+        private async void Initialize()
         {
             var builder = Kernel.CreateBuilder();
             //string modelId = "gpt-5-nano";
@@ -205,7 +223,8 @@ namespace AiHelper
 
             AddSystemMessage();
 
-            Speaker2.Say("Ich warte jetzt, bis Du das Wort Computer sagst.");
+            //Speaker2.Say("Ich warte jetzt, bis Du das Wort Computer sagst.");
+            await Speaker2.Say("Ich warte jetzt, bis Du die leertaste drückst.", true);
             Task.Run(WaitForActivation);
 
         }
@@ -219,6 +238,36 @@ Wenn Du mit einer Aktion fertig bist fragen den Benutzer ob er noch etwas möcht
 Wenn er nichts mehr möchte rufe das ClosePlugin auf.");
         }
 
+        public async Task Activate()
+        {
+            history.Clear();
+            AddSystemMessage();            
+            IsActivated = true;
+            lastInteractionAt = DateTime.Now;
+            Debug.WriteLine("Activate: Activated!");
+            this.addToOutput("Sprach Chat Aktiviert", false);
+            await Speaker2.Say("Ich höre zu!", true);
+            if (gatheredWavData != null)
+            {
+                Debug.WriteLine($"Activate: gatheredWavData.Length= {gatheredWavData.Length}");
+            }
+            else
+            {
+                Debug.WriteLine($"Activate: gatheredWavData is null");
+            }
+            isListening = true;
+        }
+
+        public async void Deactivate()
+        {
+            isListening = false;
+            IsActivated = false;
+
+            Debug.WriteLine("Deactivate: Deactivated!");
+            this.addToOutput("Sprach Chat Deaktiviert", false);
+            await Speaker2.Say("Ich höre jetzt nicht mehr zu. Drücke die Leertaste sobald ich wieder zuhören soll.");
+        }
+
         private void WaitForActivation()
         {
             Debug.WriteLine("Waiting for activation...");
@@ -226,14 +275,14 @@ Wenn er nichts mehr möchte rufe das ClosePlugin auf.");
             this.isRecording = false;
 
             
-            ActivatorByCodeword activator = new ActivatorByCodeword();
-            activator.WaitForActivation();
+            //ActivatorByCodeword activator = new ActivatorByCodeword();
+            //activator.WaitForActivation(this.errorHandle);
 
             history.Clear();
             AddSystemMessage();
 
             isListening = true;
-            isActivated = true;
+            IsActivated = true;
             lastInteractionAt = DateTime.Now;
             Debug.WriteLine("Activated!");
             Speaker2.Say("Ich höre zu!");
@@ -244,7 +293,7 @@ Wenn er nichts mehr möchte rufe das ClosePlugin auf.");
             Debug.WriteLine("Close Session started");
             this.isListening = false;
             this.isRecording = false;
-            this.isActivated = false;
+            this.IsActivated = false;
 
             gatheredWavData.Close();
             gatheredWavData.Dispose();
@@ -305,11 +354,12 @@ Wenn er nichts mehr möchte rufe das ClosePlugin auf.");
             this.lastInteractionAt = DateTime.Now;
             string output = resultBuilder.ToString();
             Debug.WriteLine($"Ask: output={output}");
+            this.addToOutput(output, false);
             await Speaker2.Say(output);
 
             history.AddAssistantMessage(resultBuilder.ToString());
 
-            isListening = isActivated;
+            isListening = IsActivated;
             this.lastInteractionAt = DateTime.Now;
         }
     }

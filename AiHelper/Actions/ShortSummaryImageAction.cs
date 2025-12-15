@@ -14,13 +14,13 @@ namespace AiHelper.Actions
             this.getShowImageAfterCapture = getShowImageAfterCapture;
         }
 
-        public Key Key => Key.Space;
+        public Key Key => Key.LeftCtrl;
 
-        public string KeyText => "Leertaste";
+        public string KeyText => "Linke Steuerungstaste";
 
         public string Description => "Bild aufnehmen und KURZ zusammenfassen";
 
-        public string HelpText => "Wenn Du die Leertaste drückst wird über die eingebaute Kamera ein Bild von dem Gegenstand vor der Kamera gemacht und der Inhalt in einem Satz zusammengefasst. Also wenn Du z.B. Post bekommst, oder Dir bei der Medikamentenpackung nicht  sicher bist: Halte es vor die Webcam und drücke die Leertaste.";
+        public string HelpText => "Wenn Du die linke Steuerungstaste drückst wird über die eingebaute Kamera ein Bild von dem Gegenstand vor der Kamera gemacht und der Inhalt in einem Satz zusammengefasst. Also wenn Du z.B. Post bekommst, oder Dir bei der Medikamentenpackung nicht  sicher bist: Halte es vor die Webcam und drücke die Leertaste.";
 
         public async Task Run()
         {

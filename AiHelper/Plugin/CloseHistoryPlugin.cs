@@ -18,8 +18,10 @@ namespace AiHelper.Plugin
         }
 
         [KernelFunction]
+//        [Description(@"When the user asks to close the current session or end the current discussion or the current topic this function can be used.
+//At the end tell the user in German that you are waiting for the code word 'Computer' to start listening.")]
         [Description(@"When the user asks to close the current session or end the current discussion or the current topic this function can be used.
-At the end tell the user in German that you are waiting for the code word 'Computer' to start listening.")]
+At the end tell the user in German that you are waiting for the the user pressing the space bar in German 'Leertaste' to start listening.")]
         public string CloseSession()
         {
             this.closeSession();

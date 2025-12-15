@@ -15,8 +15,7 @@ namespace AiHelper
     {
         private readonly Action bringToFront;
         private readonly Func<Window, bool> showDialog;
-        private readonly Action scrollToEnd;
-        private VoiceChat voiceChat;
+        private readonly Action scrollToEnd;        
 
         public MainViewModel(Action bringToFront, Func<Window, bool> showDialog, Action scrollToEnd)
         {
@@ -27,8 +26,9 @@ namespace AiHelper
 
             this.Options = new List<ICustomAction>
             {
+                new VoiceChatListenAction(() => this.VoiceChat),
                 new ShortSummaryImageAction(this.AddToOutput, () => this.ShowImage),
-                new ReadImageAction(this.AddToOutput, () => this.ShowImage),
+                new ReadImageAction(this.AddToOutput, () => this.ShowImage),                
             };
 
             this.Options.Add(new HelpAction(this.Options));
@@ -38,13 +38,13 @@ namespace AiHelper
         private async void EditConfiguration()
         {
             await ConfigProvider.EditConfiguration();
-            this.voiceChat.SilenceVolumneLimit = ConfigProvider.Config.SoundConfig.SilenceVolumeLimit;
+            this.VoiceChat.SilenceVolumneLimit = ConfigProvider.Config.SoundConfig.SilenceVolumeLimit;
         }
 
         private async Task HandleErrors(string errorMessage)
         {
             this.AddToOutput("Ein Fehler ist aufgetreten: " + errorMessage);
-            Speaker2.Say("Ein Fehler ist aufgetreten. " + errorMessage);
+            Speaker.Say("Ein Fehler ist aufgetreten. " + errorMessage);
         }
 
         private bool showImage = false;
@@ -115,7 +115,7 @@ namespace AiHelper
                 text = "Leertaste";
             }
 
-            Speaker2.Say(text);
+            await Speaker2.Say(text, true);
 
             if (key == Key.F12)
             {
@@ -143,12 +143,24 @@ namespace AiHelper
         {
             await ConfigProvider.Initialize(this.showDialog, stayOnTop => this.StayOnTop = stayOnTop, this.HandleErrors);
             Speaker2.Initialize();
-            await AiAccessor.Initialize(this.HandleErrors);
+            await AiAccessor.Initialize(this.HandleErrors);     
 
-            this.voiceChat = new VoiceChat();
+            this.VoiceChat = new VoiceChat(AddToOutput, text => this.HandleErrors(text));
         }
 
         public ICommand OpenConfigCommand { get; }
+
+
+        private VoiceChat voiceChat;
+        public VoiceChat VoiceChat
+        {
+            get => this.voiceChat;
+            set
+            {
+                this.voiceChat = value;
+                OnPropertyChanged();
+            }
+        }
 
         private bool IsBusy { get; set; }
 
@@ -163,6 +175,12 @@ namespace AiHelper
             }
 
             this.scrollToEnd();
+        }
+
+        private void AddToOutput(string text, bool isUserInput)
+        {
+            string origin = isUserInput ? "User" : "AI";
+            RunOnUIThread(() => AddToOutput($"{origin}: {text}"));
         }
     }
 }
