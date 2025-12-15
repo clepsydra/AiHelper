@@ -87,7 +87,7 @@ namespace AiHelper
                         //Speaker2.Say("Ich warte jetzt, bis Du wieder das Wort Computer sagst.");
                         await Speaker2.Say("Ich warte jetzt, bis Du wieder die Leertaste drückst.");
 
-                        Task.Run(WaitForActivation);
+                        //Task.Run(WaitForActivation);
                     }
                 }
 
@@ -225,7 +225,7 @@ namespace AiHelper
 
             //Speaker2.Say("Ich warte jetzt, bis Du das Wort Computer sagst.");
             await Speaker2.Say("Ich warte jetzt, bis Du die leertaste drückst.", true);
-            Task.Run(WaitForActivation);
+            //Task.Run(WaitForActivation);
 
         }
 
@@ -274,9 +274,9 @@ Wenn er nichts mehr möchte rufe das ClosePlugin auf.");
             this.isListening = false;
             this.isRecording = false;
 
-            
-            //ActivatorByCodeword activator = new ActivatorByCodeword();
-            //activator.WaitForActivation(this.errorHandle);
+
+            ActivatorByCodeword activator = new ActivatorByCodeword();
+            activator.WaitForActivation(this.errorHandle);
 
             history.Clear();
             AddSystemMessage();
@@ -299,10 +299,10 @@ Wenn er nichts mehr möchte rufe das ClosePlugin auf.");
             gatheredWavData.Dispose();
             gatheredWavData = new MemoryStream();
 
-            Task.Run(async () =>
-            {
-                this.WaitForActivation();
-            });
+            //Task.Run(async () =>
+            //{
+            //    this.WaitForActivation();
+            //});
         }
 
         public async Task Ask(string text)
@@ -335,6 +335,7 @@ Wenn er nichts mehr möchte rufe das ClosePlugin auf.");
             while (await enumerator.MoveNextAsync())
             {                
                 Debug.WriteLine("MoveNextAsync");
+                this.lastInteractionAt = DateTime.Now;
 
                 var content = enumerator.Current;
                 string textSnippet = content.ToString();
@@ -355,7 +356,7 @@ Wenn er nichts mehr möchte rufe das ClosePlugin auf.");
             string output = resultBuilder.ToString();
             Debug.WriteLine($"Ask: output={output}");
             this.addToOutput(output, false);
-            await Speaker2.Say(output);
+            await Speaker2.Say(output, true);
 
             history.AddAssistantMessage(resultBuilder.ToString());
 

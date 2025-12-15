@@ -98,11 +98,6 @@ namespace AiHelper
                 var result = audioClient.GenerateSpeech(message, GeneratedSpeechVoice.Shimmer, options);
                 var bytes = result.Value.ToArray();
 
-                while (waveOut != null && waveOut.PlaybackState == PlaybackState.Playing)
-                {
-                    await Task.Delay(25);
-                }
-
                 if (stream != null)
                 {
                     stream.Dispose();
@@ -114,6 +109,11 @@ namespace AiHelper
                 waveOut = new WaveOut();
                 waveOut.Init(reader);
                 waveOut.Play();
+
+                while (waveOut != null && waveOut.PlaybackState == PlaybackState.Playing)
+                {
+                    await Task.Delay(25);
+                }
 
                 messageQueue.Dequeue();
             }
