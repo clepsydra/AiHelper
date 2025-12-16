@@ -81,6 +81,7 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -102,6 +103,9 @@
                         <TextBlock Text="Api Key" Grid.Row="4" Grid.Column="0"/>
                         <TextBox Text="{Binding Config.EMailConfig.ApiKey}" Grid.Row="4" Grid.Column="1"/>
 
+                        <Button Grid.Row="5" Grid.ColumnSpan="2"
+                                Command="{Binding EditMailAddressesCommand}"
+                                Content="Adressbuch" Margin="0,3,0,3"/>
                     </Grid>
                 </GroupBox>
 

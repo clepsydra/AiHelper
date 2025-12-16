@@ -14,6 +14,7 @@ namespace AiHelper.Plugin
             kernel.Plugins.AddFromType<AnalyzeImagePlugin>("AnalyzeImagePlugin");
             kernel.Plugins.AddFromType<EMailPlugin>("EMailPlugin");
             kernel.Plugins.AddFromType<ShoppingListPlugin>("ShoppingListPlugin");
+            kernel.Plugins.AddFromType<DateTimePlugin>("DateTimePlugin");
 
             var closeSessionPlugin = new CloseHistoryPlugin(closeSession);
             kernel.Plugins.AddFromObject(closeSessionPlugin, "CloseSessionPlugin");

@@ -68,14 +68,19 @@ Return value:
 Return value: The email address if it is available, else nothing.")]
         public string GetEmailAdressFromName(string name)
         {
-            switch (name.ToLowerInvariant())
+            var addressBook = ConfigProvider.Config?.EMailConfig?.AddressBook;
+            if (addressBook == null)
             {
-                case "ralf":
-                    return "ralf.hoffmann@gmx.de";
-                
-                default:
-                    return string.Empty;
+                return string.Empty;
             }
+
+            var matchingEntry = addressBook.FirstOrDefault(kvp => kvp.Key.Equals(name, StringComparison.OrdinalIgnoreCase));
+            if (matchingEntry.Value == null)
+            {
+                return string.Empty;
+            }
+
+            return matchingEntry.Value;
         }
 
         [KernelFunction]

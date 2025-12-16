@@ -18,6 +18,8 @@ namespace AiHelper.Config.Models
 
         public string Name { get; set; }
 
+        public Dictionary<string, string>? AddressBook { get; set; }
+
         internal EMailConfig Clone()
         {
             return new EMailConfig
@@ -26,7 +28,8 @@ namespace AiHelper.Config.Models
                 ImapServer = ImapServer,
                 EMailAddress = EMailAddress,
                 ApiKey = ApiKey,
-                Name = Name
+                Name = Name,
+                AddressBook = AddressBook?.ToDictionary(kvp => kvp.Key, kvp => kvp.Value)
             };
         }
     }

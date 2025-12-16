@@ -1,6 +1,8 @@
-﻿using System.IO.Pipes;
+﻿using System.Diagnostics;
+using System.IO.Pipes;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
+using AiHelper.Config.EMailAddresses;
 using AiHelper.Config.Models;
 using NAudio.Wave;
 
@@ -15,6 +17,9 @@ namespace AiHelper.Config
             this.close = close;
             this.OkCommand = new RelayCommand(() => this.Close(true));
             this.CancelCommand = new RelayCommand(() => this.Close(false));
+
+            this.EditMailAddressesCommand = new RelayCommand(this.EditMailAddresses);
+
             if (config != null)
             {
                 this.Config = config.Clone();
@@ -112,6 +117,24 @@ namespace AiHelper.Config
             }
         }
 
+        public ICommand EditMailAddressesCommand { get; }
 
+        private void EditMailAddresses()
+        {
+            var addressBook = Config.EMailConfig.AddressBook;
+            if (addressBook == null)
+            {
+                addressBook = new Dictionary<string, string>();
+            }
+
+            var dialog = new EMailAddressesDialog(addressBook);
+            var result = dialog.ShowDialog();
+            if (result != true)
+            {
+                return;
+            }
+
+            Config.EMailConfig.AddressBook = dialog.EMailAddresses;
+        }
     }
 }

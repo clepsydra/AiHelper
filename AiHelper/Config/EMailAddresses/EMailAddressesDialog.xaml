@@ -1,0 +1,31 @@
+﻿<Window x:Class="AiHelper.Config.EMailAddresses.EMailAddressesDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AiHelper.Config.EMailAddresses"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=local:EMailAddressesViewModel}"
+        Title="EMailAddressesDialog" Height="450" Width="800">
+    <Grid>
+        <DockPanel>
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Top">
+                <Button Content="Hinzufügen" Command="{Binding AddCommand}"/>
+                <Button Content="Delete" Command="{Binding DeleteCommand}"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" DockPanel.Dock="Bottom" Margin="2">
+                <Button Command="{Binding OkCommand}" Content="OK" MinWidth="80" />
+                <Button Command="{Binding CancelCommand}" Content="Abbrechen" MinWidth="80" Margin="2,0,0,0"/>
+            </StackPanel>
+
+            <DataGrid ItemsSource="{Binding EMailAddresses}" AutoGenerateColumns="False"
+                      SelectedItem="{Binding SelectedEMailAddress}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Binding="{Binding Name}" Width="*" Header="Name"/>
+                    <DataGridTextColumn Binding="{Binding EmailAddress}" Width="*" Header="EMail Adresse"/>                    
+                </DataGrid.Columns>
+            </DataGrid>
+
+        </DockPanel>
+    </Grid>
+</Window>
