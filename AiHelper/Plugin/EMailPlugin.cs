@@ -72,8 +72,7 @@ Return value: The email address if it is available, else nothing.")]
             {
                 case "ralf":
                     return "ralf.hoffmann@gmx.de";
-                case "franz":
-                    return "franz.elbern@gmx.de";
+                
                 default:
                     return string.Empty;
             }
