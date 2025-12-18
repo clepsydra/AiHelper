@@ -35,19 +35,23 @@ namespace AiHelper
 
         public static async Task<BinaryData> CaptureImageWithHeadsup(bool showImage)
         {
-            await Task.Delay(1000);
-            await Speaker2.Say("Halte den Gegenstand vor die Kamera", true);
-            await Task.Delay(1000);
-            await Speaker2.Say("Drei", true);
-            await Task.Delay(1000);
-            await Speaker2.Say("Zwei", true);
-            await Task.Delay(1000);
-            await Speaker2.Say("Eins", true);
-            await Task.Delay(1000);
-            await Speaker2.Say("Aufnahme läuft", true);
+            //await Task.Delay(1000);
+            await Speaker2.SayAndCache(@"Ich nehme jetzt ein Bild auf.
+Drei.
+Zwei.
+Eins.
+Aufnahme.", true);
+            //await Task.Delay(1000);
+            //await Speaker2.Say("Drei", true);
+            //await Task.Delay(1000);
+            //await Speaker2.Say("Zwei", true);
+            //await Task.Delay(1000);
+            //await Speaker2.Say("Eins", true);
+            //await Task.Delay(1000);
+            //await Speaker2.Say("Aufnahme läuft", true);
 
             var data = CaptureImage(showImage);
-            await Speaker2.Say("Bild aufgenommen, Ich analysiere jetzt das Bild");
+            await Speaker2.SayAndCache("Bild aufgenommen, Ich analysiere jetzt das Bild");
 
             BinaryData binaryData = BinaryData.FromBytes(data);
 

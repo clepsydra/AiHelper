@@ -115,7 +115,7 @@ namespace AiHelper
                 text = "Leertaste";
             }
 
-            await Speaker2.Say(text, true);
+            await Speaker2.SayAndCache(text, true);
 
             if (key == Key.F12)
             {

@@ -40,6 +40,8 @@ namespace AiHelper
         private readonly Action<string, bool> addToOutput;
         private Action<string> errorHandle = null;
 
+        private int silenceWaitTimeOutInMs = 2000;
+
         private MemoryStream gatheredWavData = new();
 
         public VoiceChat(Action<string, bool> addToOutput, Action<string> handleErrors)
@@ -57,7 +59,9 @@ namespace AiHelper
             waveIn.WaveFormat = new WaveFormat(16000, 1);
             waveIn.BufferMilliseconds = 100;
 
-            this.SilenceVolumneLimit = ConfigProvider.Config?.SoundConfig.SilenceVolumeLimit ?? 0.005;            
+            this.SilenceVolumneLimit = ConfigProvider.Config?.SoundConfig.SilenceVolumeLimit ?? 0.005;
+
+            this.silenceWaitTimeOutInMs = ConfigProvider.Config?.SoundConfig.SilenceWaitTimeInMs ?? 2000;
 
             waveIn.DataAvailable += async (object? sender, WaveInEventArgs e) =>
             {
@@ -85,7 +89,7 @@ namespace AiHelper
                         gatheredWavData = new MemoryStream();
 
                         //Speaker2.Say("Ich warte jetzt, bis Du wieder das Wort Computer sagst.");
-                        await Speaker2.Say("Ich warte jetzt, bis Du wieder die Leertaste drückst.");
+                        await Speaker2.SayAndCache("Ich warte jetzt, bis Du wieder die Leertaste drückst.");
 
                         //Task.Run(WaitForActivation);
                     }
@@ -103,7 +107,7 @@ namespace AiHelper
                             silenceStarted = true;
                             silenceStartedAt = DateTime.Now;
                         }
-                        else if (DateTime.Now.Subtract(silenceStartedAt).TotalSeconds > 2)
+                        else if (DateTime.Now.Subtract(silenceStartedAt).TotalMilliseconds > this.silenceWaitTimeOutInMs)
                         {
                             Debug.WriteLine("Silence lasted for 2 seconds");
                             isRecording = false;
@@ -224,7 +228,7 @@ namespace AiHelper
             AddSystemMessage();
 
             //Speaker2.Say("Ich warte jetzt, bis Du das Wort Computer sagst.");
-            await Speaker2.Say("Ich warte jetzt, bis Du die leertaste drückst.", true);
+            await Speaker2.SayAndCache("Ich warte jetzt, bis Du die leertaste drückst.", true);
             //Task.Run(WaitForActivation);
 
         }
@@ -240,13 +244,14 @@ Wenn er nichts mehr möchte rufe das ClosePlugin auf.");
 
         public async Task Activate()
         {
+            this.silenceWaitTimeOutInMs = ConfigProvider.Config?.SoundConfig.SilenceWaitTimeInMs ?? 2000;
             history.Clear();
-            AddSystemMessage();            
+            AddSystemMessage();
             IsActivated = true;
             lastInteractionAt = DateTime.Now;
             Debug.WriteLine("Activate: Activated!");
             this.addToOutput("Sprach Chat Aktiviert", false);
-            await Speaker2.Say("Ich höre zu!", true);
+            await Speaker2.SayAndCache("Ich höre zu!", true);
             if (gatheredWavData != null)
             {
                 Debug.WriteLine($"Activate: gatheredWavData.Length= {gatheredWavData.Length}");
@@ -265,7 +270,7 @@ Wenn er nichts mehr möchte rufe das ClosePlugin auf.");
 
             Debug.WriteLine("Deactivate: Deactivated!");
             this.addToOutput("Sprach Chat Deaktiviert", false);
-            await Speaker2.Say("Ich höre jetzt nicht mehr zu. Drücke die Leertaste sobald ich wieder zuhören soll.");
+            await Speaker2.SayAndCache("Ich höre jetzt nicht mehr zu. Drücke die Leertaste sobald ich wieder zuhören soll.");
         }
 
         private void WaitForActivation()

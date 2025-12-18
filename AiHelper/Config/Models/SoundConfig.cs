@@ -10,11 +10,14 @@ namespace AiHelper.Config.Models
     {
         public double SilenceVolumeLimit { get; set; } = 0.05;
 
+        public int SilenceWaitTimeInMs { get; set; } = 2000;
+
         public SoundConfig Clone()
         {
             return new SoundConfig
             {
-                SilenceVolumeLimit = SilenceVolumeLimit
+                SilenceVolumeLimit = SilenceVolumeLimit,
+                SilenceWaitTimeInMs = SilenceWaitTimeInMs
             };
         }
     }

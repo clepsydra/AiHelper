@@ -32,6 +32,13 @@ namespace AiHelper
 
         private static Queue<string> messageQueue = new Queue<string>();
 
+        /// <summary>
+        /// Texts for which the output shall be cached
+        /// </summary>
+        public static HashSet<string> ToCache { get; } = new HashSet<string>();
+
+        private static Dictionary<string, byte[]> cachedOutput = new Dictionary<string, byte[]>();
+
         public static async Task Say(string text, bool wait = false)
         {
             if (string.IsNullOrEmpty(text))
@@ -95,8 +102,16 @@ namespace AiHelper
                     await Task.Delay(50);
                 }
 
-                var result = audioClient.GenerateSpeech(message, GeneratedSpeechVoice.Shimmer, options);
-                var bytes = result.Value.ToArray();
+                if (!cachedOutput.TryGetValue(message, out var bytes))
+                {
+                    var result = audioClient.GenerateSpeech(message, GeneratedSpeechVoice.Shimmer, options);
+                    bytes = result.Value.ToArray();
+
+                    if (ToCache.Contains(message))
+                    {
+                        cachedOutput[message] = bytes;
+                    }
+                }
 
                 if (stream != null)
                 {
@@ -117,6 +132,12 @@ namespace AiHelper
 
                 messageQueue.Dequeue();
             }
+        }
+
+        internal static async Task SayAndCache(string message, bool wait = false)
+        {
+            ToCache.Add(message);
+            await Say(message, wait);
         }
     }
 }

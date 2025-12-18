@@ -30,6 +30,7 @@ namespace AiHelper.Config
             }
 
             this.VolumeLimit = ConfigProvider.Config.SoundConfig.SilenceVolumeLimit;
+            this.SilenceTimeOutInMs = ConfigProvider.Config.SoundConfig.SilenceWaitTimeInMs;
 
             Task.Run(MonitorNoise);
         }
@@ -50,7 +51,6 @@ namespace AiHelper.Config
             waveIn.DeviceNumber = 0;
             waveIn.WaveFormat = new WaveFormat(16000, 1);
             waveIn.BufferMilliseconds = 100;
-
 
             waveIn.DataAvailable += (object? sender, WaveInEventArgs e) =>
             {
@@ -74,6 +74,7 @@ namespace AiHelper.Config
         {
             isListening = false;
             this.Config.SoundConfig.SilenceVolumeLimit = this.VolumeLimit;
+            this.Config.SoundConfig.SilenceWaitTimeInMs = this.SilenceTimeOutInMs;
             this.close(result);
         }
 
@@ -113,6 +114,18 @@ namespace AiHelper.Config
             set
             {
                 this.volumeLimit = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private int silenceTimeOutInMs = 2000;
+
+        public int SilenceTimeOutInMs
+        {
+            get => this.silenceTimeOutInMs;
+            set
+            {
+                this.silenceTimeOutInMs = value;
                 OnPropertyChanged();
             }
         }

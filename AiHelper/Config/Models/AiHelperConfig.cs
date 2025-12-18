@@ -3,7 +3,7 @@ namespace AiHelper.Config.Models
 {
     public class AiHelperConfig
     {
-        public string OpenAiApiKey { get; set; } = string.Empty;
+        public string OpenAiApiKey { get; set; } = string.Empty;        
 
         public EMailConfig EMailConfig { get; set; }
 
