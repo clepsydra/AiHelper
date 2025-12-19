@@ -12,6 +12,8 @@ namespace AiHelper.Config.Models
 
         public int SilenceWaitTimeInMs { get; set; } = 2000;
 
+        public int MinimumVoiceTimeInMs { get; set; } = 600;
+
         public SoundConfig Clone()
         {
             return new SoundConfig

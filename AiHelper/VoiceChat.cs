@@ -41,16 +41,13 @@ namespace AiHelper
         private Action<string> errorHandle = null;
 
         private int silenceWaitTimeOutInMs = 2000;
+        private int minimumVoiceTimeInMs = 400;
 
         private MemoryStream gatheredWavData = new();
 
         public VoiceChat(Action<string, bool> addToOutput, Action<string> handleErrors)
         {
             this.addToOutput = addToOutput;
-            //string modelFile = @"D:\Downloads\vosk-model-small-de-0.15\vosk-model-small-de-0.15";
-            //string modelFile = @"D:\Downloads\vosk-model-de-0.21\vosk-model-de-0.21";
-            //var modelPath = new Model(modelFile);
-            //rec = new VoskRecognizer(modelPath, 16000);
 
             errorHandle = handleErrors;
 
@@ -62,6 +59,10 @@ namespace AiHelper
             this.SilenceVolumneLimit = ConfigProvider.Config?.SoundConfig.SilenceVolumeLimit ?? 0.005;
 
             this.silenceWaitTimeOutInMs = ConfigProvider.Config?.SoundConfig.SilenceWaitTimeInMs ?? 2000;
+            this.minimumVoiceTimeInMs = ConfigProvider.Config?.SoundConfig.MinimumVoiceTimeInMs ?? 400;
+
+            DateTime? voiceStartedAt = null;
+            DateTime? voiceStoppedAt = null;
 
             waveIn.DataAvailable += async (object? sender, WaveInEventArgs e) =>
             {
@@ -74,11 +75,25 @@ namespace AiHelper
 
                 if (maxVolume > SilenceVolumneLimit)
                 {
+                    if (!isRecording)
+                    {
+                        voiceStartedAt = DateTime.Now;
+                    }
+
                     isRecording = true;
                     silenceStarted = false;
                 }
                 else
                 {
+                    if (voiceStartedAt != null && DateTime.Now.Subtract(voiceStartedAt.Value).TotalMilliseconds < minimumVoiceTimeInMs)
+                    {
+                        Debug.WriteLine($"Voice wasn't long enough: {DateTime.Now.Subtract(voiceStartedAt.Value).TotalMilliseconds}ms");
+                        isRecording = false;
+                        gatheredWavData.Close();
+                        gatheredWavData.Dispose();
+                        gatheredWavData = new MemoryStream();
+                    }
+
                     if (DateTime.Now.Subtract(lastInteractionAt).TotalSeconds > activationTimeoutInSeconds)
                     {
                         Debug.WriteLine("Activation ended!");
@@ -87,8 +102,7 @@ namespace AiHelper
                         gatheredWavData.Close();
                         gatheredWavData.Dispose();
                         gatheredWavData = new MemoryStream();
-
-                        //Speaker2.Say("Ich warte jetzt, bis Du wieder das Wort Computer sagst.");
+                        
                         await Speaker2.SayAndCache("Ich warte jetzt, bis Du wieder die Leertaste drückst.");
 
                         //Task.Run(WaitForActivation);
@@ -245,6 +259,7 @@ Wenn er nichts mehr möchte rufe das ClosePlugin auf.");
         public async Task Activate()
         {
             this.silenceWaitTimeOutInMs = ConfigProvider.Config?.SoundConfig.SilenceWaitTimeInMs ?? 2000;
+            this.minimumVoiceTimeInMs = ConfigProvider.Config?.SoundConfig.MinimumVoiceTimeInMs ?? 400;
             history.Clear();
             AddSystemMessage();
             IsActivated = true;

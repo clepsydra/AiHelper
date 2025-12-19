@@ -125,6 +125,12 @@
                             <TextBlock Text=" Millisekunden" DockPanel.Dock="Right"/>
                             <TextBox Text="{Binding SilenceTimeOutInMs}" Margin="5,0,0,0"/>
                         </DockPanel>
+
+                        <DockPanel Margin="3,0,3,3">
+                            <TextBlock Text="Minimale Länge der Spracheingabe" VerticalAlignment="Center"/>
+                            <TextBlock Text=" Millisekunden" DockPanel.Dock="Right"/>
+                            <TextBox Text="{Binding MinimumVoiceTimeInMs}" Margin="5,0,0,0"/>
+                        </DockPanel>
                     </StackPanel>
 
                 </GroupBox>
