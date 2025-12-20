@@ -39,18 +39,18 @@ namespace AiHelper
         private bool isListening = false;
         private readonly Action<string, bool> addToOutput;
         private Action<string> errorHandle = null;
-
+        private readonly ICancelRegistrar cancelRegistrar;
         private int silenceWaitTimeOutInMs = 2000;
         private int minimumVoiceTimeInMs = 400;
 
         private MemoryStream gatheredWavData = new();
 
-        public VoiceChat(Action<string, bool> addToOutput, Action<string> handleErrors)
+        public VoiceChat(Action<string, bool> addToOutput, Action<string> handleErrors, ICancelRegistrar cancelRegistrar)
         {
             this.addToOutput = addToOutput;
 
             errorHandle = handleErrors;
-
+            this.cancelRegistrar = cancelRegistrar;
             waveIn = new WaveInEvent();
             waveIn.DeviceNumber = 0;
             waveIn.WaveFormat = new WaveFormat(16000, 1);
@@ -237,7 +237,7 @@ namespace AiHelper
             builder.AddOpenAIChatCompletion(modelId, apiKey);
 
             kernel = builder.Build();
-            PluginRegistrar.RegisterPlugins(kernel, this.CloseSession);
+            PluginRegistrar.RegisterPlugins(kernel, this.CloseSession, this.cancelRegistrar);
 
             AddSystemMessage();
 
@@ -249,11 +249,23 @@ namespace AiHelper
 
         private void AddSystemMessage()
         {
-            history.AddSystemMessage(@"Du hilfst alten Menschen.
+            history.AddSystemMessage(@"Du hilfst älteren Menschen, die eine Sehbehinderung haben.
+Alle Eingaben und Ausgaben erfolgen durch Spracheingabe und Sprachausgabe.
+D.h. Texte die Du bekommst sind erst durch eine Spracherkennung gelaufen und können daher Fehler aufweisen.
+Texte die Du ausgibst werden in Sprach umgewandelt und ausgegeben
+
 Antworte eher kurz und mit einfachen Worten.
 Und maximal 3 Sätzen am Stück.
-Wenn Du mit einer Aktion fertig bist fragen den Benutzer ob er noch etwas möchte.
-Wenn er nichts mehr möchte rufe das ClosePlugin auf.");
+
+Für Funktionsaufrufe gilt:
+Es gibt Funktionsaufrufe, zum Beispiel die zum Abspielen eines Hörbuchs, die längere asynchrone Operationen auslösen.
+Wenn das in der Beschreibung der Aktion steht erkläre nur kurz, dass die Aktion gestartet wurde und frage den Benutzer nicht, ob er noch etwas möchte.
+
+Für andere Funktionen frage den Benutzer, ob er noch etwas möchte.
+
+Wenn er sagt, dass nichts mehr möchte rufe das ClosePlugin auf.");
+
+            //Wenn Du mit einer Aktion fertig bist, und nur wenn die Funktion es nicht in Ihrer Beschreibung verbietet, frage den Benutzer, ob er noch etwas möchte.
         }
 
         public async Task Activate()

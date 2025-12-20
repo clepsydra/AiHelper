@@ -11,7 +11,7 @@ using OpenAI.Chat;
 
 namespace AiHelper
 {
-    internal class MainViewModel : ViewModelBase
+    internal class MainViewModel : ViewModelBase, ICancelRegistrar
     {
         private readonly Action bringToFront;
         private readonly Func<Window, bool> showDialog;
@@ -113,6 +113,11 @@ namespace AiHelper
             if (key == Key.Space)
             {
                 text = "Leertaste";
+
+                if (OnCancel())
+                {
+                    return true;
+                }
             }
 
             await Speaker2.SayAndCache(text, true);
@@ -145,13 +150,14 @@ namespace AiHelper
             Speaker2.Initialize();
             await AiAccessor.Initialize(this.HandleErrors);     
 
-            this.VoiceChat = new VoiceChat(AddToOutput, text => this.HandleErrors(text));
+            this.VoiceChat = new VoiceChat(AddToOutput, text => this.HandleErrors(text), this);
         }
 
         public ICommand OpenConfigCommand { get; }
 
 
-        private VoiceChat voiceChat;
+        private VoiceChat voiceChat;       
+
         public VoiceChat VoiceChat
         {
             get => this.voiceChat;
@@ -181,6 +187,15 @@ namespace AiHelper
         {
             string origin = isUserInput ? "User" : "AI";
             RunOnUIThread(() => AddToOutput($"{origin}: {text}"));
+        }
+
+        public event EventHandler<CancelEventArgs> Cancel;
+
+        private bool OnCancel()
+        {
+            var eventArgs = new CancelEventArgs();
+            Cancel?.Invoke(this, eventArgs);
+            return eventArgs.IsHandled;
         }
     }
 }
