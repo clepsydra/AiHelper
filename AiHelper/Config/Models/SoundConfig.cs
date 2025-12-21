@@ -22,5 +22,7 @@ namespace AiHelper.Config.Models
                 SilenceWaitTimeInMs = SilenceWaitTimeInMs
             };
         }
+
+        public string Voice { get; set; } = "Shimmer";
     }
 }

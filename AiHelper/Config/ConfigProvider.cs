@@ -72,6 +72,8 @@ namespace AiHelper.Config
             {
                 await OnErrorOccurred(ex.Message);
             }
+
+            Speaker2.SetVoice(Config.SoundConfig.Voice);
         }
 
         private async static Task OnErrorOccurred(string message)

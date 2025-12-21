@@ -20,8 +20,6 @@
             </StackPanel>
 
             <StackPanel>
-
-
                 <GroupBox Header="Open AI API">
                     <StackPanel>
                         <DockPanel Margin="5">
@@ -133,6 +131,9 @@
                         </DockPanel>
                     </StackPanel>
 
+                </GroupBox>
+                <GroupBox Header="Stimme">
+                    <ComboBox ItemsSource="{Binding VoiceNames}" SelectedItem="{Binding SelectedVoice}" Margin="5"/>
                 </GroupBox>
             </StackPanel>
         </DockPanel>

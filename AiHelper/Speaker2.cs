@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using AiHelper.Config;
+using Microsoft.Extensions.Primitives;
 using NAudio.Wave;
 using OpenAI.Audio;
 using static System.Net.Mime.MediaTypeNames;
@@ -18,6 +19,50 @@ namespace AiHelper
     {
         private static string apiKey;
 
+        private static GeneratedSpeechVoice generatedSpeechVoice = GeneratedSpeechVoice.Shimmer;
+
+        public static void SetVoice(string voice)
+        {
+            switch (voice)
+            {
+                case "Alloy":
+                    generatedSpeechVoice = GeneratedSpeechVoice.Alloy;
+                    return;                
+                case "Echo":
+                    generatedSpeechVoice = GeneratedSpeechVoice.Echo;
+                    return;
+                case "Fable":
+                    generatedSpeechVoice = GeneratedSpeechVoice.Fable;
+                    return;
+                case "Onyx":
+                    generatedSpeechVoice = GeneratedSpeechVoice.Onyx;
+                    return;
+                case "Nova":
+                    generatedSpeechVoice = GeneratedSpeechVoice.Nova;
+                    return;               
+                case "Shimmer":
+                    generatedSpeechVoice = GeneratedSpeechVoice.Shimmer;
+                    return;
+                case "Ash":
+#pragma warning disable OPENAI001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+                    generatedSpeechVoice = GeneratedSpeechVoice.Ash;
+                    return;
+                case "Ballad":
+                    generatedSpeechVoice = GeneratedSpeechVoice.Ballad;
+                    return;
+                case "Coral":
+                    generatedSpeechVoice = GeneratedSpeechVoice.Coral;
+                    return;
+                case "Sage":
+                    generatedSpeechVoice = GeneratedSpeechVoice.Sage;
+                    return;
+                case "Verse":
+                    generatedSpeechVoice = GeneratedSpeechVoice.Verse;
+                    return;
+#pragma warning restore OPENAI001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+            }
+        }
+
         public static void Initialize()
         {
             if (string.IsNullOrEmpty(ConfigProvider.Config?.OpenAiApiKey))
@@ -26,6 +71,7 @@ namespace AiHelper
             }
 
             apiKey = ConfigProvider.Config.OpenAiApiKey;
+            SetVoice(ConfigProvider.Config.SoundConfig.Voice);
 
             Task.Run(ProcessQueue);
         }
@@ -50,7 +96,7 @@ namespace AiHelper
             messageQueue.Enqueue(text);
 
             while (wait && messageQueue.Any())
-            { 
+            {
                 await Task.Delay(25);
             }
         }
@@ -63,10 +109,10 @@ namespace AiHelper
             var audioClient = client.GetAudioClient(modelId);
             var options = new SpeechGenerationOptions
             {
-                ResponseFormat = "mp3",                
+                ResponseFormat = "mp3",
             };
 
-            var result = audioClient.GenerateSpeech(text, OpenAI.Audio.GeneratedSpeechVoice.Shimmer, options);
+            var result = audioClient.GenerateSpeech(text, generatedSpeechVoice, options);
             var bytes = result.Value.ToArray();
             using MemoryStream stream = new MemoryStream(bytes);
             var reader = new Mp3FileReader(stream);
@@ -104,7 +150,7 @@ namespace AiHelper
 
                 if (!cachedOutput.TryGetValue(message, out var bytes))
                 {
-                    var result = audioClient.GenerateSpeech(message, GeneratedSpeechVoice.Shimmer, options);
+                    var result = audioClient.GenerateSpeech(message, generatedSpeechVoice, options);
                     bytes = result.Value.ToArray();
 
                     if (ToCache.Contains(message))
@@ -119,7 +165,7 @@ namespace AiHelper
                 }
 
                 stream = new MemoryStream(bytes);
-                var reader = new Mp3FileReader(stream);                
+                var reader = new Mp3FileReader(stream);
 
                 waveOut = new WaveOut();
                 waveOut.Init(reader);

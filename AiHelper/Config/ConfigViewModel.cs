@@ -32,6 +32,7 @@ namespace AiHelper.Config
             this.VolumeLimit = ConfigProvider.Config.SoundConfig.SilenceVolumeLimit;
             this.SilenceTimeOutInMs = ConfigProvider.Config.SoundConfig.SilenceWaitTimeInMs;
             this.MinimumVoiceTimeInMs = ConfigProvider.Config.SoundConfig.MinimumVoiceTimeInMs;
+            this.selectedVoice = ConfigProvider.Config.SoundConfig.Voice;
 
             Task.Run(MonitorNoise);
         }
@@ -77,6 +78,7 @@ namespace AiHelper.Config
             this.Config.SoundConfig.SilenceVolumeLimit = this.VolumeLimit;
             this.Config.SoundConfig.SilenceWaitTimeInMs = this.SilenceTimeOutInMs;
             this.Config.SoundConfig.MinimumVoiceTimeInMs = this.MinimumVoiceTimeInMs;
+            this.Config.SoundConfig.Voice = this.SelectedVoice;
             this.close(result);
         }
 
@@ -162,6 +164,28 @@ namespace AiHelper.Config
             }
 
             Config.EMailConfig.AddressBook = dialog.EMailAddresses;
+        }
+
+        public List<string> VoiceNames { get; } = ["Alloy", "Ash", "Ballad", "Coral", "Echo", "Fable", "Onyx", "Nova", "Sage", "Shimmer", "Verse"];
+
+        private string selectedVoice = "Shimmer";
+        
+        public string SelectedVoice
+        {
+            get => this.selectedVoice;
+            set
+            {
+                this.selectedVoice = value;
+                OnPropertyChanged();
+
+                Speaker2.SetVoice(value);
+
+                _ = Task.Run(async () =>
+                {
+                    await Speaker2.Say($"So würde ich mit der Stimme {value} sprechen. Wie klingt das für Dich?", true);
+                    Speaker2.SetVoice(ConfigProvider.Config.SoundConfig.Voice);
+                });
+            }
         }
     }
 }
