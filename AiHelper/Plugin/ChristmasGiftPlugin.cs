@@ -229,7 +229,8 @@ As part of a Christmas gift an audio book has been recorded. This function give 
             {
                 // Handle this?
             }
-
         }
+
+        public static bool IsAvailable => Directory.Exists(ChristmasGiftFolder);
     }
 }
