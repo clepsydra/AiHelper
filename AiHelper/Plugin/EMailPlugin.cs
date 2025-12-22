@@ -31,7 +31,7 @@ Parameters:
 Return value:
 - A message whether the mail has been sent successfully, else the information about the error")]
 
-        public async Task<string> SendEmail(string recipient, string subject, string body)
+        public string SendEmail(string recipient, string subject, string body)
         {
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress(EMailConfig.Name, EMailConfig.EMailAddress));            
@@ -86,7 +86,7 @@ Return value: The email address if it is available, else nothing.")]
         [KernelFunction]
         [Description(@"Gets emails from the server. It returns only the names of the senders.
 Intention is that the user can then ask for specific mails by asking for mails of this sender.")]
-        public async Task<List<string>> GetEmailsWithSenders()
+        public List<string> GetEmailsWithSenders()
         {           
             try
             {
@@ -97,13 +97,24 @@ Intention is that the user can then ask for specific mails by asking for mails o
                 for (var i = 1; i < 10; i++)
                 {
                     var message = inbox.GetMessage(inbox.Count - i);
-                    string from = message.From.FirstOrDefault()?.Name;
+                    if (message == null)
+                    {
+                        continue;
+                    }
+                    
+                    string? from = message.From.FirstOrDefault()?.Name;
                     if (string.IsNullOrEmpty(from))
                     {
-                        from = (message.From.FirstOrDefault() as MailboxAddress).ToString();
+                        from = (message.From.FirstOrDefault() as MailboxAddress)?.ToString();
                     }
 
                     Console.WriteLine("From: {0}", from);
+
+                    if (from == null)
+                    {
+                        continue;
+                    }
+
                     names.Add(from);
                 }
 
@@ -122,20 +133,25 @@ Intention is that the user can then ask for specific mails by asking for mails o
 Parameters:
 - sender
 Returns: The date, the subject and the content of the mails of this sender")]
-        public async Task<Dictionary<string, string>> GetEmailsForSender(string sender)
+        public Dictionary<string, string> GetEmailsForSender(string sender)
         {
             var inbox = GetInbox();
 
             for (var i = 1; i < 10; i++)
             {
                 var message = inbox.GetMessage(inbox.Count - i);
-                string from = message.From.FirstOrDefault()?.ToString();
+                if (message == null)
+                {
+                    continue;
+                }
+                
+                string? from = message?.From.FirstOrDefault()?.ToString();
                 if (string.IsNullOrEmpty(from))
                 {
                     continue;
                 }
 
-                if (!from.ToUpperInvariant().Contains(sender.ToUpperInvariant()))
+                if (!from.Contains(sender, StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
                 }
@@ -148,11 +164,11 @@ Returns: The date, the subject and the content of the mails of this sender")]
                 };
             }
 
-            return null;
+            return new Dictionary<string, string>();
         }
 
-        private ImapClient client;
-        private IMailFolder inbox;
+        private ImapClient? client;
+        private IMailFolder? inbox;
 
         private IMailFolder GetInbox()
         {

@@ -18,7 +18,7 @@ namespace AiHelper.Config
         private static Action<bool>? StayOnTop;
         private static Func<Window, bool>? ShowDialog;
 
-        public static AiHelperConfig? Config { get; private set; }
+        public static AiHelperConfig Config { get; private set; } = new ();
 
         public static async Task Initialize(Func<Window, bool> showDialogInvoker, Action<bool> setStayOnTop, Func<string, Task> errorHandler)
         {
@@ -35,12 +35,13 @@ namespace AiHelper.Config
             try
             {
                 string json = File.ReadAllText(ConfigFileName);
-                Config = JsonConvert.DeserializeObject<AiHelperConfig>(json);
+                var deserializedConfig = JsonConvert.DeserializeObject<AiHelperConfig>(json);
+                Config = deserializedConfig ?? new AiHelperConfig();
             }
             catch (Exception ex)
             {
                 await ErrorHandler("Konfiguration kann nicht gelesen werden: " + ex.Message);
-                Speaker2.Say("Konfiguration kann nicht gelesen werden.");
+                await Speaker2.Say("Konfiguration kann nicht gelesen werden.");
             }
 
             if (string.IsNullOrEmpty(Config?.OpenAiApiKey))

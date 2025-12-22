@@ -12,8 +12,6 @@ namespace AiHelper
     {
         private static ChatClient? client;
 
-        private static string? apiKey = null;
-
         private static Func<string, Task>? ErrorHandler;
 
         public static async Task Initialize(Func<string, Task> errorHandler)

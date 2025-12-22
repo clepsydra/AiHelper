@@ -23,14 +23,12 @@ namespace AiHelper.Config.EMailAddresses
             CancelCommand = new RelayCommand(() => closeDialog(true));
         }
 
-        
-
         public ObservableCollection<EMailAddressViewModel> EMailAddresses { get; set; } = new ObservableCollection<EMailAddressViewModel>();
 
-        private EMailAddressViewModel selectedEMailAddress;
+        private EMailAddressViewModel? selectedEMailAddress;
         private readonly Action<bool> closeDialog;
 
-        public EMailAddressViewModel SelectedEMailAddress
+        public EMailAddressViewModel? SelectedEMailAddress
         {
             get => selectedEMailAddress;
             set

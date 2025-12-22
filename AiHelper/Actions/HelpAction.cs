@@ -24,7 +24,7 @@ namespace AiHelper.Actions
         {
             foreach (var action in actions)
             {
-                Speaker2.Say(action.HelpText);
+                await Speaker2.Say(action.HelpText);
             }
         }
     }

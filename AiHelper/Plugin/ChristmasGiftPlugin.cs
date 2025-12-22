@@ -57,7 +57,7 @@ The function returns the number of chapters. The user can then be asked for a ch
 
             await PlayAudioFile(fileName);
 
-            int numberOfChapters = await GetNumberOfChapters();
+            int numberOfChapters = GetNumberOfChapters();
             return numberOfChapters;
         }
 
@@ -119,7 +119,7 @@ Parameters:
                 {
                     await Speaker2.SayAndCache($"Kapitel {chapterNumber} ist nun zuende.", true);
 
-                    if (chapterNumber < await GetNumberOfChapters())
+                    if (chapterNumber < GetNumberOfChapters())
                     {
                         _ = Task.Run(async () => await Play(chapterNumber + 1));
                         return;
@@ -136,7 +136,9 @@ Parameters:
         {
             using var stream = File.OpenRead(fileName);
             stream.Position = startPosition;
+#pragma warning disable CA1416 // Validate platform compatibility
             var reader = new Mp3FileReader(stream);
+#pragma warning restore CA1416 // Validate platform compatibility
             var waveOut = new WaveOut();
             waveOut.Init(reader);
             waveOut.Play();
@@ -166,7 +168,7 @@ Parameters:
         [Description(@"
 The user received a christmas gift: It is an audio book which is self recorded.
 As part of a Christmas gift an audio book has been recorded. This function give back the number of chapters.")]
-        public async Task<int> GetNumberOfChapters()
+        public int GetNumberOfChapters()
         {
             var files = Directory.GetFiles(ChristmasGiftFolder, "Chapter*.mp3");
             return files.Length;
@@ -205,7 +207,7 @@ As part of a Christmas gift an audio book has been recorded. This function give 
                 return lastPosition;
             }
 
-            catch (Exception ex)
+            catch
             {
                 return startPosition;
             }
@@ -222,10 +224,9 @@ As part of a Christmas gift an audio book has been recorded. This function give 
             try
             {
                 string json = JsonConvert.SerializeObject(lastPosition);
-
                 File.WriteAllText(LastPlayPositionFileName, json);
             }
-            catch (Exception ex)
+            catch
             {
                 // Handle this?
             }

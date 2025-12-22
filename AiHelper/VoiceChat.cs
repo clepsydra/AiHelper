@@ -24,7 +24,7 @@ namespace AiHelper
 
         private ChatHistory history = new ChatHistory();
 
-        private Kernel kernel;
+        private Kernel? kernel;
 
         private int noInputCount = 0;
 
@@ -38,14 +38,14 @@ namespace AiHelper
         private bool silenceStarted;
         private bool isListening = false;
         private readonly Action<string, bool> addToOutput;
-        private Action<string> errorHandle = null;
+        private readonly Func<string, Task> errorHandle;
         private readonly ICancelRegistrar cancelRegistrar;
         private int silenceWaitTimeOutInMs = 2000;
         private int minimumVoiceTimeInMs = 400;
 
         private MemoryStream gatheredWavData = new();
 
-        public VoiceChat(Action<string, bool> addToOutput, Action<string> handleErrors, ICancelRegistrar cancelRegistrar)
+        public VoiceChat(Action<string, bool> addToOutput, Func<string, Task> handleErrors, ICancelRegistrar cancelRegistrar)
         {
             this.addToOutput = addToOutput;
 
@@ -62,7 +62,6 @@ namespace AiHelper
             this.minimumVoiceTimeInMs = ConfigProvider.Config?.SoundConfig.MinimumVoiceTimeInMs ?? 400;
 
             DateTime? voiceStartedAt = null;
-            DateTime? voiceStoppedAt = null;
 
             waveIn.DataAvailable += async (object? sender, WaveInEventArgs e) =>
             {
@@ -300,25 +299,24 @@ Wenn er sagt, dass nichts mehr möchte rufe das ClosePlugin auf.");
             await Speaker2.SayAndCache("Ich höre jetzt nicht mehr zu. Drücke die Leertaste sobald ich wieder zuhören soll.");
         }
 
-        private void WaitForActivation()
-        {
-            Debug.WriteLine("Waiting for activation...");
-            this.isListening = false;
-            this.isRecording = false;
+        ////private void WaitForActivation()
+        ////{
+        ////    Debug.WriteLine("Waiting for activation...");
+        ////    this.isListening = false;
+        ////    this.isRecording = false;
 
+        ////    ActivatorByCodeword activator = new ActivatorByCodeword();
+        ////    activator.WaitForActivation(this.errorHandle);
 
-            ActivatorByCodeword activator = new ActivatorByCodeword();
-            activator.WaitForActivation(this.errorHandle);
+        ////    history.Clear();
+        ////    AddSystemMessage();
 
-            history.Clear();
-            AddSystemMessage();
-
-            isListening = true;
-            IsActivated = true;
-            lastInteractionAt = DateTime.Now;
-            Debug.WriteLine("Activated!");
-            Speaker2.Say("Ich höre zu!");
-        }
+        ////    isListening = true;
+        ////    IsActivated = true;
+        ////    lastInteractionAt = DateTime.Now;
+        ////    Debug.WriteLine("Activated!");
+        ////    Speaker2.Say("Ich höre zu!");
+        ////}
 
         private void CloseSession()
         {
@@ -339,6 +337,12 @@ Wenn er sagt, dass nichts mehr möchte rufe das ClosePlugin auf.");
 
         public async Task Ask(string text)
         {
+            if (kernel == null)
+            {
+                Debug.WriteLine("kernal is null");
+                return;
+            }
+
             this.lastInteractionAt = DateTime.Now;
             Debug.WriteLine("Ask: " + text);
             history.AddUserMessage(text);

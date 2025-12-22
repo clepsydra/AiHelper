@@ -9,9 +9,9 @@ namespace AiHelper.Actions
 {
     internal class VoiceChatListenAction : ICustomAction
     {
-        private readonly Func<VoiceChat> voiceChatAccessor;
+        private readonly Func<VoiceChat?> voiceChatAccessor;
 
-        public VoiceChatListenAction(Func<VoiceChat> voiceChatAccessor)
+        public VoiceChatListenAction(Func<VoiceChat?> voiceChatAccessor)
         {
             this.voiceChatAccessor = voiceChatAccessor;
         }

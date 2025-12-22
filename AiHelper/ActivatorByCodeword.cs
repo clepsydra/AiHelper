@@ -9,7 +9,7 @@ namespace AiHelper
 {
     internal class ActivatorByCodeword
     {
-        private SpeechRecognitionEngine _recognizer;
+        private SpeechRecognitionEngine? _recognizer;
         private SemaphoreSlim _waitHandle = new SemaphoreSlim(0, 1);
         private const string Codeword = "Computer";
 
@@ -42,7 +42,7 @@ namespace AiHelper
             }
         }
 
-        private void Recognizer_SpeechRecognized(object sender, SpeechRecognizedEventArgs e)
+        private void Recognizer_SpeechRecognized(object? sender, SpeechRecognizedEventArgs e)
         {
             if (e.Result != null && e.Result.Text != null)
             {
@@ -67,7 +67,7 @@ namespace AiHelper
             }
         }
 
-        private void Recognizer_RecognizeCompleted(object sender, RecognizeCompletedEventArgs e)
+        private void Recognizer_RecognizeCompleted(object? sender, RecognizeCompletedEventArgs e)
         {
             if (e.Error != null)
             {

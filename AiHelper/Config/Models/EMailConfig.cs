@@ -8,17 +8,17 @@ namespace AiHelper.Config.Models
 {
     public class EMailConfig
     {
-        public string SmtpServer { get; set; }
+        public string SmtpServer { get; set; } = string.Empty;
 
-        public string ImapServer { get; set; }
+        public string ImapServer { get; set; } = string.Empty;
 
-        public string EMailAddress { get; set; }
+        public string EMailAddress { get; set; } = string.Empty;
 
-        public string ApiKey { get; set; }
+        public string ApiKey { get; set; } = string.Empty;
 
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
-        public Dictionary<string, string>? AddressBook { get; set; }
+        public Dictionary<string, string> AddressBook { get; set; } = new ();
 
         internal EMailConfig Clone()
         {
@@ -29,7 +29,7 @@ namespace AiHelper.Config.Models
                 EMailAddress = EMailAddress,
                 ApiKey = ApiKey,
                 Name = Name,
-                AddressBook = AddressBook?.ToDictionary(kvp => kvp.Key, kvp => kvp.Value)
+                AddressBook = AddressBook.ToDictionary(kvp => kvp.Key, kvp => kvp.Value)
             };
         }
     }

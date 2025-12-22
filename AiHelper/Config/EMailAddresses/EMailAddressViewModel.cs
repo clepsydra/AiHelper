@@ -10,7 +10,7 @@ namespace AiHelper.Config.EMailAddresses
 {
     public class EMailAddressViewModel : ViewModelBase
     {
-        private string name;
+        private string name = string.Empty;
 
         public string Name
         {
@@ -22,7 +22,7 @@ namespace AiHelper.Config.EMailAddresses
             }
         }
 
-        private string emailAddress;
+        private string emailAddress = string.Empty;
 
         public string EmailAddress
         {

@@ -37,14 +37,14 @@ namespace AiHelper
 
         private async void EditConfiguration()
         {
-            await ConfigProvider.EditConfiguration();
-            this.VoiceChat.SilenceVolumneLimit = ConfigProvider.Config.SoundConfig.SilenceVolumeLimit;
+            await ConfigProvider.EditConfiguration();            
+            this.VoiceChat!.SilenceVolumneLimit = ConfigProvider.Config.SoundConfig.SilenceVolumeLimit;
         }
 
         private async Task HandleErrors(string errorMessage)
         {
             this.AddToOutput("Ein Fehler ist aufgetreten: " + errorMessage);
-            Speaker.Say("Ein Fehler ist aufgetreten. " + errorMessage);
+            await Speaker.Say("Ein Fehler ist aufgetreten. " + errorMessage);
         }
 
         private bool showImage = false;
@@ -150,15 +150,15 @@ namespace AiHelper
             Speaker2.Initialize();
             await AiAccessor.Initialize(this.HandleErrors);     
 
-            this.VoiceChat = new VoiceChat(AddToOutput, text => this.HandleErrors(text), this);
+            this.VoiceChat = new VoiceChat(AddToOutput, this.HandleErrors, this);
         }
 
         public ICommand OpenConfigCommand { get; }
 
 
-        private VoiceChat voiceChat;       
+        private VoiceChat? voiceChat;       
 
-        public VoiceChat VoiceChat
+        public VoiceChat? VoiceChat
         {
             get => this.voiceChat;
             set
@@ -189,7 +189,7 @@ namespace AiHelper
             RunOnUIThread(() => AddToOutput($"{origin}: {text}"));
         }
 
-        public event EventHandler<CancelEventArgs> Cancel;
+        public event EventHandler<CancelEventArgs>? Cancel;
 
         private bool OnCancel()
         {

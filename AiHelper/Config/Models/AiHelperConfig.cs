@@ -3,13 +3,13 @@ namespace AiHelper.Config.Models
 {
     public class AiHelperConfig
     {
-        public string OpenAiApiKey { get; set; } = string.Empty;        
+        public string OpenAiApiKey { get; set; } = string.Empty;
 
-        public EMailConfig EMailConfig { get; set; }
+        public EMailConfig EMailConfig { get; set; } = new();
 
         public SoundConfig SoundConfig { get; set; } = new SoundConfig();
 
-        internal AiHelperConfig? Clone()
+        internal AiHelperConfig Clone()
         {
             var newConfig = new AiHelperConfig
             {

@@ -41,7 +41,7 @@ Wenn keine der Möglichkeiten zutrifft fasse in einem Satz den Inhalt des Bildes
 
             var result = await AiAccessor.AskAi(chatHistory);
             addToOutput(result);
-            Speaker2.Say(result);
+            await Speaker2.Say(result);
         }
     }
 }
