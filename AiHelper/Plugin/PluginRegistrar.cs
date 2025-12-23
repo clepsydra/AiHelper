@@ -16,6 +16,8 @@ namespace AiHelper.Plugin
             kernel.Plugins.AddFromType<ShoppingListPlugin>("ShoppingListPlugin");
             kernel.Plugins.AddFromType<DateTimePlugin>("DateTimePlugin");
 
+            kernel.Plugins.AddFromType<BraillePlugin>("BraillePlugin");
+
             var closeSessionPlugin = new CloseHistoryPlugin(closeSession);
             kernel.Plugins.AddFromObject(closeSessionPlugin, "CloseSessionPlugin");
 
