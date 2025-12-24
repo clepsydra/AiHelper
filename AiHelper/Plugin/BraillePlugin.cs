@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,11 +13,16 @@ namespace AiHelper.Plugin
     {
         [KernelFunction]
         [Description(@"Gets the Braille points for the character in the input.
-Whenever there is a request to get the points for a braille character use this function.")]
+Whenever there is a request to get the points for a braille character use this function.
+Paramters:
+- input: The braille character
+Result:
+An array of integer values.")]
         //// Whenever there is the need to verify the information that the user gives to you about braille points use this function to get the points to use this information for verification.
         //// When the user is wrong you must tell him that he is wrong and tell him the correct points for the current braille character.
         public IReadOnlyList<int> GetBraillePoints(string input)
         {
+            Debug.WriteLine($"GetBraillePoints: {input}");
             switch (input.ToLowerInvariant())
             {
                 case "a":
@@ -85,6 +91,8 @@ Parameters:
 - point number list: an array of integers")]        
         public bool VerifyBraillePoints(string brailleCharacter, List<int> braillePointNumbers)
         {
+            Debug.WriteLine($"VerifyBraillePoints: {brailleCharacter}, braillePointNumbers: {string.Join(", ", braillePointNumbers)}");
+
             var realBraillePoints = GetBraillePoints(brailleCharacter);
 
             if (braillePointNumbers.Count != realBraillePoints.Count)
