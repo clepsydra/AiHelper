@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Input;
 using AiHelper.Actions;
 using AiHelper.Config;
+using AiHelper.Plugin;
 using Newtonsoft.Json;
 using OpenAI.Chat;
 
@@ -197,5 +198,7 @@ namespace AiHelper
             Cancel?.Invoke(this, eventArgs);
             return eventArgs.IsHandled;
         }
+
+        public bool IsChristmasGiftAvailable => ChristmasGiftPlugin.IsAvailable;
     }
 }
