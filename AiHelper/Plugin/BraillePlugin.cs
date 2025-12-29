@@ -88,7 +88,7 @@ An array of integer values.")]
 Example: First parameter is a 'C', List of point numbers is 1,4. Result would be true.
 Parameters:
 - a braille character, type: string
-- point number list: an array of integers")]        
+- point number list: an array of integers")]
         public bool VerifyBraillePoints(string brailleCharacter, List<int> braillePointNumbers)
         {
             Debug.WriteLine($"VerifyBraillePoints: {brailleCharacter}, braillePointNumbers: {string.Join(", ", braillePointNumbers)}");
@@ -110,6 +110,22 @@ Parameters:
             }
 
             return true;
+        }
+
+        [KernelFunction]
+        [Description(@"Gets the locations of the braille dots, i.e. location of point 1 upper left etc.
+Call this function to get the correct information of where the braille dots are located in the 2x3 matrix.")]
+        public Dictionary<int, string> GetLocationOfBraillePoints()
+        {
+            return new()
+            {
+                { 1, "upper left" },
+                { 2, "middle left"},
+                { 3, "bottom left"},
+                { 4, "upper right" },
+                { 5, "middle right"},
+                { 6, "bottom right"}
+            };
         }
     }
 }
