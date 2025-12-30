@@ -28,6 +28,7 @@ namespace AiHelper
             await TrainingByNumbers();
 
             await Speaker2.SayAndCache(@"Bis zum nächsten Mal beim Braille Trainer.", true);
+            this.sessionEnded();
         }
 
         private async Task TrainingByNumbers()
@@ -60,7 +61,7 @@ Eingabe des Benutzers ist: ""{input}""";
             string[] split = parsedResult.Split(",", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
             if (split.Length != 2)
             {
-                await Speaker2.SayAndCache("Ich habe die Eingabe nicht verstanden.", true);
+                await Speaker2.SayAndCache("Ich habe die Eingabe nicht verstanden. Ich beende den Braille Trainer.", true);
                 return;
             }
 
@@ -121,6 +122,7 @@ Eingabe des Benutzers ist: ""{charInput}""";
                         await Speaker2.SayAndCache(@$"Ich habe die Eingabe nicht verstanden.
 Die richtige Antwort für {GetPointsTextWithPositions(points)} ist ein {currentChar}.", true);
                         lastCorrectChar = '@';
+                        await Task.Delay(500);
                         continue;
                     }
 
