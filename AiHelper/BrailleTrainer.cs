@@ -75,6 +75,8 @@ Eingabe des Benutzers ist: ""{input}""";
 
             while (true)
             {
+                currentChar = (char)random.Next(from, to + 1);
+
                 while (currentChar == lastCorrectChar)
                 {
                     currentChar = (char)random.Next(from, to + 1);
@@ -117,13 +119,15 @@ Die richtige Antwort für {GetPointsTextWithPositions(points)} ist ein {currentC
 
                 if (charInput.Equals(currentChar.ToString(), StringComparison.OrdinalIgnoreCase))
                 {
-                    await Speaker2.SayAndCache("Das ist richtig.", true);
+                    await Speaker2.SayAndCache(GetThatsCorrectVariation(), true);
                     lastCorrectChar = currentChar;
                     await Task.Delay(500);
                     continue;
                 }
 
-                await Speaker2.SayAndCache($"Das ist nicht richtig. {GetPointsText(points)} ergibt den Buchstaben {currentChar}.", true);
+                string ergibtOrErgeben = points.Count == 1 ? "ergibt" : "ergeben";
+
+                await Speaker2.SayAndCache($"{GetThatsIncorrectVariation()}. {GetPointsText(points)} {ergibtOrErgeben} den Buchstaben {currentChar}.", true);
                 lastCorrectChar = '@';
                 await Task.Delay(500);
             }
@@ -215,6 +219,42 @@ Die richtige Antwort für {GetPointsTextWithPositions(points)} ist ein {currentC
             var stringsExceptLast = strings.Take(strings.Count - 1);
 
             return $"{string.Join(", ", stringsExceptLast)} und {strings.Last()}";
+        }
+
+        private string GetThatsCorrectVariation()
+        {
+            switch(new Random().Next(5))
+            {
+                case 0:
+                    return "Das ist richtig.";
+                case 1:
+                    return "Das ist korrekt.";
+                case 2:
+                    return "Ja genau.";
+                case 3:
+                    return "Perfekt.";
+                case 4:
+                    return "Sehr gut.";
+            }
+
+            return "Das ist richtig.";
+        }
+
+        private string GetThatsIncorrectVariation()
+        {
+            switch (new Random().Next(4))
+            {
+                case 0:
+                    return "Das ist nicht richtig.";
+                case 1:
+                    return "Das ist leider nicht korrekt.";
+                case 2:
+                    return "Knapp daneben.";
+                case 3:
+                    return "Das ist falsch.";                
+            }
+
+            return "Das ist nicht richtig.";
         }
     }
 }
