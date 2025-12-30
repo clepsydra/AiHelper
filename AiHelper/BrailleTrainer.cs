@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.SemanticKernel.ChatCompletion;
 using OpenAI.Responses;
+using Org.BouncyCastle.Ocsp;
 
 namespace AiHelper
 {
@@ -73,15 +74,24 @@ Eingabe des Benutzers ist: ""{input}""";
             char lastCorrectChar = '\0';
             char currentChar = 'A';
 
+            var unknowns = new List<char>();
+
             while (true)
             {
-                currentChar = (char)random.Next(from, to + 1);
-
-                while (currentChar == lastCorrectChar)
+                if (unknowns.Count > 0 && random.Next(3) > 0)
+                {
+                    var index = random.Next(unknowns.Count);
+                    currentChar = unknowns[index];
+                }
+                else
                 {
                     currentChar = (char)random.Next(from, to + 1);
-                }
 
+                    while (currentChar == lastCorrectChar)
+                    {
+                        currentChar = (char)random.Next(from, to + 1);
+                    }
+                }
 
                 var points = BrailleProvider.GetBraillePoints(currentChar.ToString());
                 string firstText = isFirst ? string.Empty : "Nächste Frage: ";
@@ -121,6 +131,8 @@ Die richtige Antwort für {GetPointsTextWithPositions(points)} ist ein {currentC
                 {
                     await Speaker2.SayAndCache(GetThatsCorrectVariation(), true);
                     lastCorrectChar = currentChar;
+                    unknowns.Remove(currentChar);
+
                     await Task.Delay(500);
                     continue;
                 }
@@ -129,6 +141,11 @@ Die richtige Antwort für {GetPointsTextWithPositions(points)} ist ein {currentC
 
                 await Speaker2.SayAndCache($"{GetThatsIncorrectVariation()}. {GetPointsText(points)} {ergibtOrErgeben} den Buchstaben {currentChar}.", true);
                 lastCorrectChar = '@';
+                if (!unknowns.Contains(currentChar))
+                {
+                    unknowns.Add(currentChar);
+                }
+
                 await Task.Delay(500);
             }
         }
@@ -223,7 +240,7 @@ Die richtige Antwort für {GetPointsTextWithPositions(points)} ist ein {currentC
 
         private string GetThatsCorrectVariation()
         {
-            switch(new Random().Next(5))
+            switch (new Random().Next(5))
             {
                 case 0:
                     return "Das ist richtig.";
@@ -251,7 +268,7 @@ Die richtige Antwort für {GetPointsTextWithPositions(points)} ist ein {currentC
                 case 2:
                     return "Knapp daneben.";
                 case 3:
-                    return "Das ist falsch.";                
+                    return "Das ist falsch.";
             }
 
             return "Das ist nicht richtig.";
