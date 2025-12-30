@@ -60,7 +60,14 @@ namespace AiHelper
                 fullText.AppendLine(content.Text);
             }
 
-            return fullText.ToString();
+            return fullText.ToString().Trim();
+        }
+
+        public static async Task<string> AskAi(string message)
+        {
+            List<ChatMessage> chatHistory = [new UserChatMessage(message)];
+
+            return await AskAi(chatHistory);
         }
     }
 }

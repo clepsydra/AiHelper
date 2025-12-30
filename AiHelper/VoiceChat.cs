@@ -18,18 +18,12 @@ namespace AiHelper
 {
     public class VoiceChat : ViewModelBase
     {
-        //private VoskRecognizer rec;
-
         private WaveInEvent waveIn;
 
         private ChatHistory history = new ChatHistory();
 
         private Kernel? kernel;
-
-        private int noInputCount = 0;
-
-        private StringBuilder currentInputBuilder = new StringBuilder();
-
+       
         private const int activationTimeoutInSeconds = 60;
         private DateTime lastInteractionAt = DateTime.MinValue;
 
@@ -103,8 +97,6 @@ namespace AiHelper
                         gatheredWavData = new MemoryStream();
                         
                         await Speaker2.SayAndCache("Ich warte jetzt, bis Du wieder die Leertaste drückst.");
-
-                        //Task.Run(WaitForActivation);
                     }
                 }
 
@@ -134,38 +126,6 @@ namespace AiHelper
                         }
                     }
                 }
-
-
-                //if (rec.AcceptWaveform(e.Buffer, e.BytesRecorded))
-                //{
-                //    string json = rec.Result();
-                //    Debug.WriteLine(json);
-                //    var result = JsonConvert.DeserializeObject<VoskResult>(json);
-                //    if (string.IsNullOrEmpty(result?.Text))
-                //    {
-                //        if (currentInputBuilder.Length == 0)
-                //        {
-                //            return;
-                //        }
-
-                //        if (++noInputCount == 1)
-                //        {
-                //            string currentInput = currentInputBuilder.ToString();
-                //            currentInputBuilder.Clear();
-                //            noInputCount = 0;
-                //            Task.Run(async () => await Ask(currentInput));
-                //        }
-                //    }
-
-                //    if (result.Text.StartsWith("Computer", StringComparison.OrdinalIgnoreCase))
-                //    {
-                //        isActivated = true;
-                //        currentInputBuilder.Append(result.Text.Substring(8));
-                //        return;
-                //    }                    
-
-                //    currentInputBuilder.Append(result.Text);
-                //}
             };
 
             waveIn.StartRecording();
@@ -187,22 +147,6 @@ namespace AiHelper
         }
 
         public bool IsDeactivated => !this.IsActivated;
-
-        //private async void HandleInput(byte[] input)
-        //{
-        //    if (rec.AcceptWaveform(input, input.Length))
-        //    {
-        //        string json = rec.Result();
-        //        Debug.WriteLine(json);
-        //        var result = JsonConvert.DeserializeObject<VoskResult>(json);
-        //        if (!string.IsNullOrEmpty(result?.Text))
-        //        {
-        //            string currentInput = result.Text;
-        //            isListening = false;
-        //            Task.Run(async () => await Ask(currentInput));
-        //        }
-        //    }
-        //}
 
         private void HandleInput2(byte[] input)
         {
@@ -299,25 +243,6 @@ Wenn er sagt, dass nichts mehr möchte rufe das ClosePlugin auf.");
             await Speaker2.SayAndCache("Ich höre jetzt nicht mehr zu. Drücke die Leertaste sobald ich wieder zuhören soll.");
         }
 
-        ////private void WaitForActivation()
-        ////{
-        ////    Debug.WriteLine("Waiting for activation...");
-        ////    this.isListening = false;
-        ////    this.isRecording = false;
-
-        ////    ActivatorByCodeword activator = new ActivatorByCodeword();
-        ////    activator.WaitForActivation(this.errorHandle);
-
-        ////    history.Clear();
-        ////    AddSystemMessage();
-
-        ////    isListening = true;
-        ////    IsActivated = true;
-        ////    lastInteractionAt = DateTime.Now;
-        ////    Debug.WriteLine("Activated!");
-        ////    Speaker2.Say("Ich höre zu!");
-        ////}
-
         private void CloseSession()
         {
             Debug.WriteLine("Close Session started");
@@ -328,11 +253,6 @@ Wenn er sagt, dass nichts mehr möchte rufe das ClosePlugin auf.");
             gatheredWavData.Close();
             gatheredWavData.Dispose();
             gatheredWavData = new MemoryStream();
-
-            //Task.Run(async () =>
-            //{
-            //    this.WaitForActivation();
-            //});
         }
 
         public async Task Ask(string text)

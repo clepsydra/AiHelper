@@ -7,13 +7,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using AiHelper.Config;
+using OpenAI.Audio;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace AiHelper
 {
     internal class SpeechRecognition
     {
-        public static async Task<string> Recognize(byte[] mp3Bytes)
+        public static async Task<string> Recognize(byte[] mp3Bytes, string language = "", string prompt = "")
         {
             var client = new OpenAI.OpenAIClient(ConfigProvider.Config.OpenAiApiKey);
             //string modelId = "gpt-audio-mini";
@@ -24,7 +25,13 @@ namespace AiHelper
             try
             {
                 using MemoryStream stream = new MemoryStream(mp3Bytes);
-                var result = await audioClient.TranscribeAudioAsync(stream, "input.mp3");
+                AudioTranscriptionOptions? options =  new AudioTranscriptionOptions
+                {
+                    Language = language,
+                    Prompt = prompt,
+                };
+
+                var result = await audioClient.TranscribeAudioAsync(stream, "input.mp3", options);
                 string? text = result.Value?.Text;
                 if (string.IsNullOrEmpty(text))
                 {

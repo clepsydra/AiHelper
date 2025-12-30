@@ -11,6 +11,14 @@ namespace AiHelper.Plugin
 {
     public class BraillePlugin
     {
+        private BrailleTrainer brailleTrainer;
+        private readonly Action closeSession;
+
+        public BraillePlugin(Action closeSession)
+        {
+            this.closeSession = closeSession;
+        }
+
         [KernelFunction]
         [Description(@"Gets the Braille points for the character in the input.
 Whenever there is a request to get the points for a braille character use this function.
@@ -126,6 +134,21 @@ Call this function to get the correct information of where the braille dots are 
                 { 5, "middle right"},
                 { 6, "bottom right"}
             };
+        }
+
+        [KernelFunction]
+        [Description(@"Starts the Braille Trainer. That tool does then does the interaction with the user.
+After calling this function tell the user that the trainer has been started.
+After calling this function you MUST not ask the user whether he wants to do something else.")]
+        public void StartTrainer()
+        {
+            brailleTrainer = new BrailleTrainer(() => { });
+            closeSession();
+            Task.Run(async () =>
+            {
+                await Task.Delay(8000);
+                await brailleTrainer.StartTraining();
+            });
         }
     }
 }
