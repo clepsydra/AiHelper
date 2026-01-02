@@ -11,6 +11,7 @@ namespace AiHelper
     internal class AiAccessor
     {
         private static ChatClient? client;
+        private static ChatClient? simpleTasksClient;
 
         private static Func<string, Task>? ErrorHandler;
 
@@ -30,8 +31,11 @@ namespace AiHelper
         private static void InitClient()
         {
             string model = "o4-mini";
+            string simpleTasksModel = "gpt-5-nano";
+
             string apiKey = ConfigProvider.Config!.OpenAiApiKey;
-            client = new(model: model, apiKey: apiKey);
+            client = new(model: model, apiKey: apiKey);            
+            simpleTasksClient = new(model: simpleTasksModel, apiKey: apiKey);
         }
 
         private async static Task OnErrorOccurred(string message)
@@ -65,9 +69,23 @@ namespace AiHelper
 
         public static async Task<string> AskAi(string message)
         {
+            if (simpleTasksClient == null)
+            {
+                await OnErrorOccurred("simpleTasksClient not available");
+                return string.Empty;
+            }
+
             List<ChatMessage> chatHistory = [new UserChatMessage(message)];
 
-            return await AskAi(chatHistory);
+            ChatCompletion completion = await simpleTasksClient.CompleteChatAsync(chatHistory);
+
+            var fullText = new StringBuilder();
+            foreach (var content in completion.Content)
+            {
+                fullText.AppendLine(content.Text);
+            }
+
+            return fullText.ToString().Trim();
         }
     }
 }
