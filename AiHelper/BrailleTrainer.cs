@@ -12,28 +12,40 @@ namespace AiHelper
 {
     internal class BrailleTrainer
     {
+        private readonly Action<string, bool> addToOutput;
         private readonly Action sessionEnded;
-        private readonly VoiceCommandListener voiceCommandListener = new();
+        private readonly VoiceCommandListener voiceCommandListener;
 
-        public BrailleTrainer(Action sessionEnded)
+        public BrailleTrainer(Action<string, bool> addToOutput, Action sessionEnded)
         {
+            this.addToOutput = addToOutput;
             this.sessionEnded = sessionEnded;
+            this.voiceCommandListener = VoiceCommandListener.Instance;
         }
 
         public async Task StartTraining()
         {
             Debug.WriteLine("StartTraining started");
 
-            await Speaker2.SayAndCache(@"Willkommen zum Braille Trainer.", true);
-            await TrainingByNumbers();
+            try
+            {
+                await SayAndCache(@"Willkommen zum Braille Trainer.");
+                await TrainingByNumbers();
 
-            await Speaker2.SayAndCache(@"Bis zum nächsten Mal beim Braille Trainer.", true);
+                await SayAndCache(@"Bis zum nächsten Mal beim Braille Trainer.");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+                await Speaker.Say($"Ein Problem ist aufgetreten: {ex.Message}");
+            }
+
             this.sessionEnded();
         }
 
         private async Task TrainingByNumbers()
         {
-            await Speaker2.SayAndCache("Welche Buchstaben möchtest Du üben?", true);
+            await SayAndCache("Welche Buchstaben möchtest Du üben?");
 
             string input = await GetVoiceInput("Der Benutzer nennt einen Buchstabenbereich.");
             //string input = "Ich würde gerne A bis E üben";
@@ -50,6 +62,7 @@ Wenn der Benutzer etwas gesagt hat, dass bedeutet er möchte das Programm verlas
 Eingabe des Benutzers ist: ""{input}""";
 
             string parsedResult = await AiAccessor.AskAi(analysisInstructions);
+            WriteUserInput($"(Understood as : {parsedResult})");
 
             Debug.WriteLine($"parsedResult = {parsedResult}");
 
@@ -61,7 +74,7 @@ Eingabe des Benutzers ist: ""{input}""";
             string[] split = parsedResult.Split(",", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
             if (split.Length != 2)
             {
-                await Speaker2.SayAndCache("Ich habe die Eingabe nicht verstanden. Ich beende den Braille Trainer.", true);
+                await SayAndCache("Ich habe die Eingabe nicht verstanden. Ich beende den Braille Trainer.");
                 return;
             }
 
@@ -96,7 +109,7 @@ Eingabe des Benutzers ist: ""{input}""";
 
                 var points = BrailleProvider.GetBraillePoints(currentChar.ToString());
                 string firstText = isFirst ? string.Empty : "Nächste Frage: ";
-                await Speaker2.SayAndCache($"{GetPointsTextWithPositions(points)}. Welcher Buchstabe ist das?", true);
+                await SayAndCache($"{GetPointsTextWithPositions(points)}. Welcher Buchstabe ist das?");
 
                 string charInput = await GetVoiceInput("Der Benutzer nennt einen Buchstaben.");
 
@@ -112,6 +125,7 @@ Eingabe des Benutzers ist: ""{charInput}""";
 
                     parsedResult = await AiAccessor.AskAi(analysisInstructions);
                     Debug.WriteLine($"parsedResult  {parsedResult}");
+                    WriteUserInput($"(Understood as : {parsedResult})");
                     if (parsedResult == "Exit")
                     {
                         return;
@@ -119,8 +133,8 @@ Eingabe des Benutzers ist: ""{charInput}""";
 
                     if (parsedResult.Length != 1)
                     {
-                        await Speaker2.SayAndCache(@$"Ich habe die Eingabe nicht verstanden.
-Die richtige Antwort für {GetPointsTextWithPositions(points)} ist ein {currentChar}.", true);
+                        await SayAndCache(@$"Ich habe die Eingabe nicht verstanden.
+Die richtige Antwort für {GetPointsTextWithPositions(points)} ist ein {currentChar}.");
                         lastCorrectChar = '@';
                         await Task.Delay(500);
                         continue;
@@ -131,7 +145,7 @@ Die richtige Antwort für {GetPointsTextWithPositions(points)} ist ein {currentC
 
                 if (charInput.Equals(currentChar.ToString(), StringComparison.OrdinalIgnoreCase))
                 {
-                    await Speaker2.SayAndCache(GetThatsCorrectVariation(), true);
+                    await SayAndCache(GetThatsCorrectVariation());
                     lastCorrectChar = currentChar;
                     unknowns.Remove(currentChar);
 
@@ -141,7 +155,7 @@ Die richtige Antwort für {GetPointsTextWithPositions(points)} ist ein {currentC
 
                 string ergibtOrErgeben = points.Count == 1 ? "ergibt" : "ergeben";
 
-                await Speaker2.SayAndCache($"{GetThatsIncorrectVariation()}. {GetPointsText(points)} {ergibtOrErgeben} den Buchstaben {currentChar}.", true);
+                await SayAndCache($"{GetThatsIncorrectVariation()}. {GetPointsText(points)} {ergibtOrErgeben} den Buchstaben {currentChar}.");
                 lastCorrectChar = '@';
                 if (!unknowns.Contains(currentChar))
                 {
@@ -155,6 +169,7 @@ Die richtige Antwort für {GetPointsTextWithPositions(points)} ist ein {currentC
         private async Task<string> GetVoiceInput(string prompt)
         {
             string input = await voiceCommandListener.GetNextVoiceCommand("de", prompt);
+            WriteUserInput(input);
             return input;
         }
 
@@ -274,6 +289,17 @@ Die richtige Antwort für {GetPointsTextWithPositions(points)} ist ein {currentC
             }
 
             return "Das ist nicht richtig.";
+        }
+
+        private async Task SayAndCache(string message)
+        {
+            addToOutput(message, false);
+            await Speaker2.SayAndCache(message, true);
+        }
+
+        private void WriteUserInput(string message)
+        {
+            addToOutput(message, true);
         }
     }
 }

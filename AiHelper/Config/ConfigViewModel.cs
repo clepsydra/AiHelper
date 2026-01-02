@@ -33,6 +33,7 @@ namespace AiHelper.Config
             this.SilenceTimeOutInMs = ConfigProvider.Config.SoundConfig.SilenceWaitTimeInMs;
             this.MinimumVoiceTimeInMs = ConfigProvider.Config.SoundConfig.MinimumVoiceTimeInMs;
             this.selectedVoice = ConfigProvider.Config.SoundConfig.Voice;
+            this.PlayRecorded = ConfigProvider.Config.SoundConfig.PlayRecorded;
 
             Task.Run(MonitorNoise);
         }
@@ -79,6 +80,7 @@ namespace AiHelper.Config
             this.Config.SoundConfig.SilenceWaitTimeInMs = this.SilenceTimeOutInMs;
             this.Config.SoundConfig.MinimumVoiceTimeInMs = this.MinimumVoiceTimeInMs;
             this.Config.SoundConfig.Voice = this.SelectedVoice;
+            this.Config.SoundConfig.PlayRecorded = this.PlayRecorded;
             this.close(result);
         }
 
@@ -142,6 +144,17 @@ namespace AiHelper.Config
             set
             {
                 this.minimumVoiceTimeInMs = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool playRecorded = false;
+        public bool PlayRecorded
+        {
+            get => this.playRecorded;
+            set
+            {
+                this.playRecorded = value;
                 OnPropertyChanged();
             }
         }

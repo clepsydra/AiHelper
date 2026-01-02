@@ -9,14 +9,14 @@ namespace AiHelper.Plugin
 {
     internal class PluginRegistrar
     {
-        internal static void RegisterPlugins(Kernel kernel, Action closeSession, ICancelRegistrar cancelRegistrar)
+        internal static void RegisterPlugins(Kernel kernel, Action<string, bool> addToOutput, Action closeSession, ICancelRegistrar cancelRegistrar)
         {
             kernel.Plugins.AddFromType<AnalyzeImagePlugin>("AnalyzeImagePlugin");
             kernel.Plugins.AddFromType<EMailPlugin>("EMailPlugin");
             kernel.Plugins.AddFromType<ShoppingListPlugin>("ShoppingListPlugin");
             kernel.Plugins.AddFromType<DateTimePlugin>("DateTimePlugin");
 
-            var braillePlugin = new BraillePlugin(closeSession);
+            var braillePlugin = new BraillePlugin(addToOutput, closeSession);
             kernel.Plugins.AddFromObject(braillePlugin, "BraillePlugin");
 
             var closeSessionPlugin = new CloseHistoryPlugin(closeSession);

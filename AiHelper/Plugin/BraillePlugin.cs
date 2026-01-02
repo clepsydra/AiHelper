@@ -11,11 +11,13 @@ namespace AiHelper.Plugin
 {
     public class BraillePlugin
     {
-        private BrailleTrainer brailleTrainer;
+        private BrailleTrainer? brailleTrainer;
+        private readonly Action<string, bool> addToOutput;
         private readonly Action closeSession;
 
-        public BraillePlugin(Action closeSession)
+        public BraillePlugin(Action<string, bool> addToOutput, Action closeSession)
         {
+            this.addToOutput = addToOutput;
             this.closeSession = closeSession;
         }
 
@@ -142,7 +144,7 @@ After calling this function tell the user that the trainer has been started.
 After calling this function you MUST not ask the user whether he wants to do something else.")]
         public void StartTrainer()
         {
-            brailleTrainer = new BrailleTrainer(TrainerClosed);
+            brailleTrainer = new BrailleTrainer(addToOutput, TrainerClosed);
             closeSession();
             Task.Run(async () =>
             {

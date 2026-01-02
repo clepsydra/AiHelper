@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -29,6 +30,20 @@ namespace AiHelper
             }
 
             return maxVolume;
+        }
+
+        public static async Task Play(byte[] bytes)
+        {
+            using MemoryStream stream = new MemoryStream(bytes);
+            var reader = new Mp3FileReader(stream);
+            var waveOut = new WaveOut();
+            waveOut.Init(reader);
+            waveOut.Play();
+
+            while (waveOut.PlaybackState == PlaybackState.Playing)
+            {
+                await Task.Delay(100);
+            }
         }
     }
 }

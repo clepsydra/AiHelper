@@ -7,40 +7,35 @@ using System.Text;
 using System.Threading.Tasks;
 using AiHelper.Config;
 using NAudio.Wave;
+using Org.BouncyCastle.Tls.Crypto;
 
 namespace AiHelper
 {
     internal class VoiceCommandListener
     {
-        private const int activationTimeoutInSeconds = 60;
+        private WaveInEvent waveIn;
+        private MemoryStream gatheredWavData = new MemoryStream();
+        private double silenceVolumneLimit;
+        private int silenceWaitTimeOutInMs;
 
-        public async Task<string> GetNextVoiceCommand(string language, string prompt)
+        private bool isListening = false;
+        private bool silenceStarted;
+        private DateTime lastInteractionAt;
+        private DateTime silenceStartedAt;
+
+        private Exception? exception;
+
+        private VoiceCommandListener()
         {
-            var waveIn = new WaveInEvent();
+            waveIn = new WaveInEvent();
             waveIn.DeviceNumber = 0;
             waveIn.WaveFormat = new WaveFormat(16000, 1);
             waveIn.BufferMilliseconds = 100;
 
-            var silenceVolumneLimit = ConfigProvider.Config?.SoundConfig.SilenceVolumeLimit ?? 0.005;
-
-            var silenceWaitTimeOutInMs = ConfigProvider.Config?.SoundConfig.SilenceWaitTimeInMs ?? 2000;
-            var minimumVoiceTimeInMs = ConfigProvider.Config?.SoundConfig.MinimumVoiceTimeInMs ?? 400;
-
-            DateTime? voiceStartedAt = null;
-
-            bool isRecording = false;
-            bool silenceStarted = false;
-
-            DateTime lastInteractionAt = DateTime.Now;
-            DateTime silenceStartedAt = DateTime.Now;
-
-            MemoryStream gatheredWavData = new MemoryStream();
-            string? result = null;
-
-            bool isListening = true;
-
             waveIn.DataAvailable += async (object? sender, WaveInEventArgs e) =>
             {
+                try
+                {
                 if (!isListening)
                 {
                     return;
@@ -48,60 +43,94 @@ namespace AiHelper
 
                 double maxVolume = AudioTools.GetMaxVolume(e);
 
-                if (maxVolume > silenceVolumneLimit)
-                {
-                    gatheredWavData.Write(e.Buffer, 0, e.BytesRecorded);
-                    silenceStarted = false;
-                }
-                else
-                {
-                    if (!silenceStarted)
+                    if (maxVolume > silenceVolumneLimit)
                     {
-                        silenceStarted = true;
-                        silenceStartedAt = DateTime.Now;
+                        gatheredWavData.Write(e.Buffer, 0, e.BytesRecorded);
+                        silenceStarted = false;
                     }
                     else
                     {
-                        if (gatheredWavData.Length == 0)
+                        if (!silenceStarted)
                         {
-                            // Nothing recorded yet
-                            if (DateTime.Now.Subtract(lastInteractionAt).TotalSeconds > activationTimeoutInSeconds)
+                            silenceStarted = true;
+                            silenceStartedAt = DateTime.Now;
+                        }
+                        else
+                        {
+                            if (gatheredWavData.Length == 0)
                             {
-                                Debug.WriteLine("No input until activation time out");
-                                await Speaker2.SayAndCache($"Ich habe seit {activationTimeoutInSeconds} Sekunden nichts gehört.", true);
-                                isListening = false;
+                                // Nothing recorded yet
+                                if (DateTime.Now.Subtract(lastInteractionAt).TotalSeconds > activationTimeoutInSeconds)
+                                {
+                                    Debug.WriteLine("No input until activation time out");
+                                    isListening = false;
+                                    waveIn.StopRecording();                                    
+                                    await Speaker2.SayAndCache($"Ich habe seit {activationTimeoutInSeconds} Sekunden nichts gehört.", true);
+                                    
+                                }
+                            }
+                            else if (DateTime.Now.Subtract(silenceStartedAt).TotalMilliseconds > silenceWaitTimeOutInMs)
+                            {
+                                // Something recorded, but input ended
+                                Debug.WriteLine($"Silence lasted for {silenceWaitTimeOutInMs} ms");
+                                silenceStarted = false;
+
                                 waveIn.StopRecording();
+                                isListening = false;
                             }
                         }
-                        else if (DateTime.Now.Subtract(silenceStartedAt).TotalMilliseconds > silenceWaitTimeOutInMs)
-                        {
-                            // Something recorded, but input ended
-                            Debug.WriteLine($"Silence lasted for {silenceWaitTimeOutInMs} ms");
-                            isRecording = false;
-                            silenceStarted = false;
-
-                            waveIn.StopRecording();
-                            isListening = false;
-                        }
                     }
+                }
 
+                catch (Exception ex)
+                {
+                    exception = ex;
+                    isListening = false;
                 }
             };
+        }
 
-            waveIn.StartRecording();
+        private const int activationTimeoutInSeconds = 60;
+
+        public async Task<string> GetNextVoiceCommand(string language, string prompt)
+        {
+            this.exception = null;
+            this.silenceVolumneLimit = ConfigProvider.Config?.SoundConfig.SilenceVolumeLimit ?? 0.005;
+
+            this.silenceWaitTimeOutInMs = ConfigProvider.Config?.SoundConfig.SilenceWaitTimeInMs ?? 2000;
+
+            this.silenceStarted = false;
+
+            lastInteractionAt = DateTime.Now;
+            silenceStartedAt = DateTime.Now;
+            
+            string? result = null;
+
+            isListening = true;
+            waveIn.StartRecording();            
 
             while (isListening)
             {
                 await Task.Delay(50);
             }
 
-            waveIn.Dispose();
+            if (exception != null)
+            {
+                throw exception;
+            }
+
+            //waveIn.Dispose();
 
             if (gatheredWavData.Length > 0)
             {
                 var wavData = gatheredWavData.ToArray();
 
                 var mp3Bytes = Mp3Converter.PcmBytesToMp3Bytes(wavData, new WaveFormat(16000, 1), 128);
+                if (ConfigProvider.Config?.SoundConfig.PlayRecorded == true)
+                {
+                    await AudioTools.Play(mp3Bytes);
+                }
+
                 result = await SpeechRecognition.Recognize(mp3Bytes, language, prompt);
             }
             else
@@ -111,8 +140,25 @@ namespace AiHelper
 
             gatheredWavData.Close();
             gatheredWavData.Dispose();
+            
+            gatheredWavData = new MemoryStream();
 
             return result;
+        }
+
+        private static VoiceCommandListener? instance;
+
+        public static VoiceCommandListener Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    instance = new VoiceCommandListener();
+                }
+
+                return instance;
+            }
         }
     }
 }

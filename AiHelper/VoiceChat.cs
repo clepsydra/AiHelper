@@ -157,6 +157,11 @@ namespace AiHelper
 
             Task.Run(async () =>
             {
+                if (ConfigProvider.Config?.SoundConfig.PlayRecorded == true)
+                {
+                    await AudioTools.Play(mp3Bytes);
+                }
+
                 string text = await SpeechRecognition.Recognize(mp3Bytes);
 
                 if (!string.IsNullOrEmpty(text))
@@ -180,7 +185,7 @@ namespace AiHelper
             builder.AddOpenAIChatCompletion(modelId, apiKey);
 
             kernel = builder.Build();
-            PluginRegistrar.RegisterPlugins(kernel, this.CloseSession, this.cancelRegistrar);
+            PluginRegistrar.RegisterPlugins(kernel, this.addToOutput, this.CloseSession, this.cancelRegistrar);
 
             AddSystemMessage();
 

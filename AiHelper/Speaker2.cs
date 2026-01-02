@@ -17,7 +17,7 @@ namespace AiHelper
 {
     internal class Speaker2
     {
-        private static string apiKey;
+        private static string? apiKey;
 
         private static GeneratedSpeechVoice generatedSpeechVoice = GeneratedSpeechVoice.Shimmer;
 

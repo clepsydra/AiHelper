@@ -129,6 +129,9 @@
                             <TextBlock Text=" Millisekunden" DockPanel.Dock="Right"/>
                             <TextBox Text="{Binding MinimumVoiceTimeInMs}" Margin="5,0,0,0"/>
                         </DockPanel>
+
+                        <CheckBox Content="Spiele ab, was der User spricht" IsChecked="{Binding PlayRecorded}"
+                                  Margin="3,10,3,3"/>
                     </StackPanel>
 
                 </GroupBox>

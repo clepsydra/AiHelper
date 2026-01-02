@@ -19,10 +19,15 @@ namespace AiHelper.Config.Models
             return new SoundConfig
             {
                 SilenceVolumeLimit = SilenceVolumeLimit,
-                SilenceWaitTimeInMs = SilenceWaitTimeInMs
+                SilenceWaitTimeInMs = SilenceWaitTimeInMs,
+                MinimumVoiceTimeInMs = MinimumVoiceTimeInMs,
+                PlayRecorded = PlayRecorded,
+                Voice = Voice
             };
         }
 
         public string Voice { get; set; } = "Shimmer";
+
+        public bool PlayRecorded { get; set; } = false;
     }
 }
