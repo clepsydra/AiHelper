@@ -149,7 +149,10 @@ namespace AiHelper
         {
             await ConfigProvider.Initialize(this.showDialog, stayOnTop => this.StayOnTop = stayOnTop, this.HandleErrors);
             Speaker2.Initialize();
-            await AiAccessor.Initialize(this.HandleErrors);     
+            await AiAccessor.Initialize(this.HandleErrors);
+
+            //var qrCodeReader = new QRCodeReader(this.AddToOutput, () => { });
+            //Task.Run(qrCodeReader.Start);
 
             this.VoiceChat = new VoiceChat(AddToOutput, this.HandleErrors, this);
         }

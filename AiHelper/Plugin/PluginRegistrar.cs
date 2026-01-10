@@ -22,11 +22,14 @@ namespace AiHelper.Plugin
             var closeSessionPlugin = new CloseHistoryPlugin(closeSession);
             kernel.Plugins.AddFromObject(closeSessionPlugin, "CloseSessionPlugin");
 
+            var qrCodeReaderPlugin = new QrCodeReaderPlugin(addToOutput, closeSession);
+            kernel.Plugins.AddFromObject(qrCodeReaderPlugin, "QrCodeReaderPlugin");
+
             if (ChristmasGiftPlugin.IsAvailable)
             {
                 var christmasGifePlugin = new ChristmasGiftPlugin(cancelRegistrar, closeSession);
                 kernel.Plugins.AddFromObject(christmasGifePlugin, "ChristmasGiftPlugin");
-            }
+            }           
         }
     }
 }

@@ -36,7 +36,7 @@ namespace AiHelper
             {
                 try
                 {
-                if (!isListening)
+                if (!isListening || IgnoreAudio)
                 {
                     return;
                 }
@@ -106,7 +106,7 @@ namespace AiHelper
             
             string? result = null;
 
-            isListening = true;
+            isListening = true;            
             waveIn.StartRecording();            
 
             while (isListening)
@@ -147,6 +147,8 @@ namespace AiHelper
         }
 
         private static VoiceCommandListener? instance;
+
+        public bool IgnoreAudio { get; set; }
 
         public static VoiceCommandListener Instance
         {
