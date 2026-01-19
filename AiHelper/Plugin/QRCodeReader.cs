@@ -149,6 +149,7 @@ namespace AiHelper.Plugin
             finally
             {
                 cancellationTokenSource.Dispose();
+                cancellationTokenSource = null;
             }
         }
 

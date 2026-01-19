@@ -31,7 +31,8 @@ namespace AiHelper
         private static void InitClient()
         {
             string model = "o4-mini";
-            string simpleTasksModel = "gpt-5-nano";
+            //string simpleTasksModel = "gpt-5-nano";
+            string simpleTasksModel = "gpt-4.1-nano";
 
             string apiKey = ConfigProvider.Config!.OpenAiApiKey;
             client = new(model: model, apiKey: apiKey);            
