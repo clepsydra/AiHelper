@@ -45,5 +45,35 @@ namespace AiHelper
                 await Task.Delay(100);
             }
         }
+
+        public static async Task<(bool, long)> PlayAudioFile(string fileName, CancellationToken cancellationToken, long startPosition = 0)
+        {
+            using var stream = File.OpenRead(fileName);
+            stream.Position = startPosition;
+#pragma warning disable CA1416 // Validate platform compatibility
+            var reader = new Mp3FileReader(stream);
+#pragma warning restore CA1416 // Validate platform compatibility
+            var waveOut = new WaveOut();
+            waveOut.Init(reader);
+            waveOut.Play();
+
+            bool cancelled = false;
+
+            while (!cancellationToken.IsCancellationRequested && waveOut.PlaybackState == PlaybackState.Playing)
+            {
+                await Task.Delay(100);
+            }
+
+            long streamPosition = 0;
+
+            if (cancellationToken.IsCancellationRequested && waveOut.PlaybackState == PlaybackState.Playing)
+            {
+                waveOut.Stop();
+                cancelled = true;
+                streamPosition = stream.Position;
+            }
+
+            return (cancelled, streamPosition);
+        }
     }
 }

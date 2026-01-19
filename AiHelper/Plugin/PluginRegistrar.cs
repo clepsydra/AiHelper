@@ -22,7 +22,7 @@ namespace AiHelper.Plugin
             var closeSessionPlugin = new CloseHistoryPlugin(closeSession);
             kernel.Plugins.AddFromObject(closeSessionPlugin, "CloseSessionPlugin");
 
-            var qrCodeReaderPlugin = new QrCodeReaderPlugin(addToOutput, closeSession);
+            var qrCodeReaderPlugin = new QrCodeReaderPlugin(addToOutput, closeSession, cancelRegistrar);
             kernel.Plugins.AddFromObject(qrCodeReaderPlugin, "QrCodeReaderPlugin");
 
             if (ChristmasGiftPlugin.IsAvailable)

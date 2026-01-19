@@ -12,14 +12,16 @@ namespace AiHelper.Plugin
     {
         private readonly Action<string, bool> addToOutput;
         private readonly Action closeSession;
+        private readonly ICancelRegistrar cancelRegistrar;
         private QRCodeReader? qrCodeReader = null;
 
         private bool isQrCodeReaderRunning = false;
 
-        public QrCodeReaderPlugin(Action<string, bool> addToOutput, Action closeSession)
+        public QrCodeReaderPlugin(Action<string, bool> addToOutput, Action closeSession, ICancelRegistrar cancelRegistrar)
         {
             this.addToOutput = addToOutput;
             this.closeSession = closeSession;
+            this.cancelRegistrar = cancelRegistrar;
         }
 
         [KernelFunction]
@@ -34,7 +36,7 @@ After calling this function you MUST not ask the user whether he wants to do som
                 return "QR Code Reader already running";
             }
 
-            qrCodeReader = new QRCodeReader(this.addToOutput);
+            qrCodeReader = new QRCodeReader(this.addToOutput, this.cancelRegistrar);
             closeSession();
             isQrCodeReaderRunning = true;
             Task.Run(async () =>
