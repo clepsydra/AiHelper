@@ -18,7 +18,6 @@ namespace AiHelper.Plugin
         private readonly Action<string, bool> addToOutput;        
 
         private bool endRequested = false;
-        private bool isPlaying = false;
         private CancellationTokenSource? cancellationTokenSource;
 
         public QRCodeReader(Action<string, bool> addToOutput, ICancelRegistrar cancelRegistrar)
