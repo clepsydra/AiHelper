@@ -27,9 +27,15 @@ namespace AiHelper.Plugin
 
             if (ChristmasGiftPlugin.IsAvailable)
             {
-                var christmasGifePlugin = new ChristmasGiftPlugin(cancelRegistrar, closeSession);
-                kernel.Plugins.AddFromObject(christmasGifePlugin, "ChristmasGiftPlugin");
-            }           
+                var christmasGiftPlugin = new ChristmasGiftPlugin(cancelRegistrar, closeSession);
+                kernel.Plugins.AddFromObject(christmasGiftPlugin, "ChristmasGiftPlugin");
+            }
+
+            if (BirthdayGiftPlugin.IsAvailable)
+            {
+                var birthdayGiftPlugin = new BirthdayGiftPlugin(cancelRegistrar, closeSession);
+                kernel.Plugins.AddFromObject(birthdayGiftPlugin, "BirthdayGiftPlugin");
+            }
         }
     }
 }
