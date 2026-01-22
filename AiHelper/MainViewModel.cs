@@ -151,8 +151,8 @@ namespace AiHelper
             Speaker2.Initialize();
             await AiAccessor.Initialize(this.HandleErrors);
 
-            //var qrCodeReader = new QRCodeReader(this.AddToOutput, () => { });
-            //Task.Run(qrCodeReader.Start);
+            //var qrCodeReader = new QRCodeReader(this.AddToOutput, this);
+            //Task.Run(qrCodeReader.Run);
 
             this.VoiceChat = new VoiceChat(AddToOutput, this.HandleErrors, this);
         }
