@@ -203,5 +203,7 @@ namespace AiHelper
         }
 
         public bool IsChristmasGiftAvailable => ChristmasGiftPlugin.IsAvailable;
+
+        public bool IsBirthayGiftAvailable => BirthdayGiftPlugin.IsAvailable;
     }
 }

@@ -86,7 +86,7 @@ Parameters:
                 bool cancelled = await this.PlayAudioFile(fileName);
                 if (cancelled)
                 {
-                    await Speaker2.SayAndCache($"Wiedergabe abgebrochen.", true);
+                    await Speaker2.SayAndCache($"Wiedergabe abgebrochen. Drücke die Leertaste, wenn ich wieder zuhören soll.", true);
                     //SaveLastPosition(chapterNumber, position);
                 }
                 else
