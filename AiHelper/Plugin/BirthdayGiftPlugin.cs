@@ -65,25 +65,32 @@ This functions ends the input by the user.
 After calling this function you MUST therefore not ask the user whether he wants to do something else.
 Parameters:
 -  ChapterNumber")]
-        public async Task Play(int pieceNumber)
+        public async Task PlayByNumber(int pieceNumber)
         {
             cancelReceived = false;
             isPlaying = true;
 
-            string fileName = Path.Combine(BirthsdayGiftFolder, $"Piece{pieceNumber}.mp3");
-            if (!File.Exists(fileName))
+            var files = GetAllFiles();
+            if (files.Count < pieceNumber)
             {
-                throw new Exception($"Datei {fileName} nicht gefunden");
+                throw new Exception("Es sind nicht so viele Dateien");
             }
 
-            await Speaker2.SayAndCache($"Ich spiele gleich das Stück Nummer {pieceNumber} ab. Wenn Du die Wiedergabe beenden möchtest drücke die Leertaste.", true);
+            string fullFileName = files[pieceNumber - 1];
+            string pureFileName = Path.GetFileNameWithoutExtension(fullFileName);
+            if (!File.Exists(fullFileName))
+            {
+                throw new Exception($"Datei {Path.GetFileName(fullFileName)} nicht gefunden");
+            }
+
+            await Speaker2.SayAndCache($"Ich spiele gleich das Stück \"{pureFileName}\" ab. Wenn Du die Wiedergabe beenden möchtest drücke die Leertaste.", true);
 
             this.closeSession();
 
             _ = Task.Run(async () =>
             {
                 await Task.Delay(8000);
-                bool cancelled = await this.PlayAudioFile(fileName);
+                bool cancelled = await this.PlayAudioFile(fullFileName);
                 if (cancelled)
                 {
                     await Speaker2.SayAndCache($"Wiedergabe abgebrochen. Drücke die Leertaste, wenn ich wieder zuhören soll.", true);
@@ -91,11 +98,11 @@ Parameters:
                 }
                 else
                 {
-                    await Speaker2.SayAndCache($"Das Stück {pieceNumber} ist nun zuende.", true);
+                    await Speaker2.SayAndCache($"Das Stück \"{pureFileName}\" ist nun zuende.", true);
 
                     if (pieceNumber < GetNumberOfPieces())
                     {
-                        _ = Task.Run(async () => await Play(pieceNumber + 1));
+                        _ = Task.Run(async () => await PlayByNumber(pieceNumber + 1));
                         return;
                     }
 
@@ -104,6 +111,28 @@ Parameters:
 
                 isPlaying = false;
             });
+        }
+
+        [KernelFunction]
+        [Description(@"
+The user received a borthday gift: Several pieces of self recorded music.
+To bring the Birthday gift to the user this function allows to play the music pieces.
+This function can be used when the user gives a text input about the piece to play. It will try to find the corresponding file and play it on a new thread.
+When it is called with a music piece number it will play the mp3 file for that music piece on a new thread.
+This functions ends the input by the user.
+After calling this function you MUST therefore not ask the user whether he wants to do something else.
+Parameters:
+-  text")]
+        public async Task PlayByName(string text)
+        {
+            var files = GetAllFiles();
+            string? matchingFileName = files.FirstOrDefault(f => Path.GetFileNameWithoutExtension(f).Contains(text, StringComparison.OrdinalIgnoreCase));
+            if (matchingFileName == null)
+            {
+                throw new Exception("Eine solche Datei wurde nicht gefunden");
+            }
+
+            await PlayByNumber(files.ToList().IndexOf(matchingFileName) + 1);
         }
 
         private async Task<bool> PlayAudioFile(string fileName)
@@ -134,13 +163,19 @@ Parameters:
             return cancelled;
         }
 
+        private IReadOnlyList<string> GetAllFiles()
+        {
+            var files = Directory.GetFiles(BirthsdayGiftFolder, "*.mp3");
+            return files;
+        }
+
         [KernelFunction]
         [Description(@"
 The user received a christmas gift: Self recorded music pieces.
 This function give back the number of music pieces.")]
         public int GetNumberOfPieces()
         {
-            var files = Directory.GetFiles(BirthsdayGiftFolder, "Piece*.mp3");
+            var files = Directory.GetFiles(BirthsdayGiftFolder, "*.mp3");
             return files.Length;
         }
 
