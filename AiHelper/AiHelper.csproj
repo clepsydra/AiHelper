@@ -22,4 +22,13 @@
     <PackageReference Include="System.Speech" Version="10.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="zmachine">
+      <HintPath>D:\Source\Foreign\WasmZork\main\zmachine\bin\Debug\net8.0\zmachine.dll</HintPath>
+    </Reference>
+    <Reference Include="Zork">
+      <HintPath>D:\Source\Foreign\WasmZork\main\Zork\bin\Debug\net8.0\Zork.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

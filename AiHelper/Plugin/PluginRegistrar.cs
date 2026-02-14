@@ -36,6 +36,11 @@ namespace AiHelper.Plugin
                 var birthdayGiftPlugin = new BirthdayGiftPlugin(cancelRegistrar, closeSession);
                 kernel.Plugins.AddFromObject(birthdayGiftPlugin, "BirthdayGiftPlugin");
             }
+
+            var zorkPlugin = new ZorkPlugin(addToOutput, closeSession, cancelRegistrar);
+
+            kernel.Plugins.AddFromObject(zorkPlugin);
+
         }
     }
 }
