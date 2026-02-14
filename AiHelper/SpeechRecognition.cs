@@ -1,8 +1,10 @@
 ﻿using System;
+using System.ClientModel;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -25,7 +27,7 @@ namespace AiHelper
             try
             {
                 using MemoryStream stream = new MemoryStream(mp3Bytes);
-                AudioTranscriptionOptions? options =  new AudioTranscriptionOptions
+                AudioTranscriptionOptions? options = new AudioTranscriptionOptions
                 {
                     Language = language,
                     Prompt = prompt,
@@ -44,6 +46,13 @@ namespace AiHelper
             catch (Exception ex)
             {
                 Debug.WriteLine($"SpeechRecognition.Recognize: Exception: {ex.ToString()}");
+
+                if (ex is HttpRequestException
+                            || (ex is AggregateException aggregateException && aggregateException.InnerExceptions.Any(e => e is HttpRequestException || e is ClientResultException)))
+                {
+                    await Speaker.Say("Es gibt anscheinend Probleme mit der Internet Verbindung.");
+                }
+
                 return string.Empty;
             }
         }

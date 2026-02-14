@@ -1,8 +1,10 @@
 ﻿using System;
+using System.ClientModel;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -27,7 +29,7 @@ namespace AiHelper
             {
                 case "Alloy":
                     generatedSpeechVoice = GeneratedSpeechVoice.Alloy;
-                    return;                
+                    return;
                 case "Echo":
                     generatedSpeechVoice = GeneratedSpeechVoice.Echo;
                     return;
@@ -39,7 +41,7 @@ namespace AiHelper
                     return;
                 case "Nova":
                     generatedSpeechVoice = GeneratedSpeechVoice.Nova;
-                    return;               
+                    return;
                 case "Shimmer":
                     generatedSpeechVoice = GeneratedSpeechVoice.Shimmer;
                     return;
@@ -150,12 +152,26 @@ namespace AiHelper
 
                 if (!cachedOutput.TryGetValue(message, out var bytes))
                 {
-                    var result = audioClient.GenerateSpeech(message, generatedSpeechVoice, options);
-                    bytes = result.Value.ToArray();
-
-                    if (ToCache.Contains(message))
+                    try
                     {
-                        cachedOutput[message] = bytes;
+                        var result = audioClient.GenerateSpeech(message, generatedSpeechVoice, options);
+                        bytes = result.Value.ToArray();
+
+                        if (ToCache.Contains(message))
+                        {
+                            cachedOutput[message] = bytes;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        if (ex is HttpRequestException
+                            || (ex is AggregateException aggregateException && aggregateException.InnerExceptions.Any(e => e is HttpRequestException || e is ClientResultException)))
+                        {
+                            await Speaker.Say("Es gibt anscheinend Probleme mit der Internet Verbindung, daher diese Stimme.");
+                            await Speaker.Say(message);
+                            messageQueue.Dequeue();
+                            continue;
+                        }
                     }
                 }
 
